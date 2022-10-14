@@ -108,7 +108,7 @@ class ClientController extends Controller
                 'errors' => $val->errors()
             ], 400);
         }
-        $password = bcrypt($request->nom . $request->prenom);
+        $password = bcrypt(strtolower($request->nom . $request->prenom)); //passwordformat
 
         $client = new Client();
         $client->code = $request->code;
