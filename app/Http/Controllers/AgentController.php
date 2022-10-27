@@ -222,6 +222,8 @@ class AgentController extends Controller
             $agent->gsm = $request->gsm;
             $agent->adresse = $request->adresse;
             $agent->ville = $request->ville;
+            $agent->password = bcrypt($request->password);
+            $agent->save(); //not sure yet
         }
     }
 
