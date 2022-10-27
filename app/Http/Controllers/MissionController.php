@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Input\Input;
+use Illuminate\Support\Facades\File;
 
 use function PHPUnit\Framework\isNull;
 
@@ -539,7 +540,10 @@ class MissionController extends Controller
     public function destroy(Mission $mission)
     {
         if ($mission->delete()) {
-
+            /* if we want to delete mission images */
+            // if (File::exists(public_path($mission->photo_chargement))) {
+            //     File::delete(public_path('upload/test.png'));
+            // }
             return response()->json([
                 'status' => true,
                 'message' => "mission deleted successfully",
