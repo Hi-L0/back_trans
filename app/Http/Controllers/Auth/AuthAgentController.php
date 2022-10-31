@@ -52,7 +52,7 @@ class AuthAgentController extends Controller
         return response()->json([
             "message" => $name . ' logged in successfully',
             'access_token' => $token,
-            'agent' => $this->agent->name,
+            'agent' => $this->agent->nom . ' ' . $this->agent->prenom,
             'token_type' => 'bearer',
             'isadmin' => false,
             'token_validity' => auth()->guard('agent-api')->factory()->getTTL() * 120,
