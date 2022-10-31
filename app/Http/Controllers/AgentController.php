@@ -31,7 +31,7 @@ class AgentController extends Controller
 
     public function index()
     {
-        $agents = Agent::where('supervisor', auth()->guard('api')->user()->id)->orderBy('name')->get();
+        $agents = Agent::where('supervisor', auth()->guard('api')->user()->id)->orderBy('nom')->get();
         //$super = $agents->manager()->name;
         $agentsCount = count($agents);
         return response()->json([
@@ -43,7 +43,7 @@ class AgentController extends Controller
     }
     public function getAllTransporteur()
     {
-        $transporteurs = Agent::where('supervisor', auth()->guard('api')->user()->id)->where('is_commis', false)->orderBy('name')->get();
+        $transporteurs = Agent::where('supervisor', auth()->guard('api')->user()->id)->where('is_commis', false)->orderBy('nom')->get();
         $transporteursCount = count($transporteurs);
         return response()->json([
             'status' => 'success',
@@ -65,7 +65,7 @@ class AgentController extends Controller
             $agent = auth()->guard('agent-api')->user();
             $commis = Agent::where('supervisor', $agent->supervisor)->where('is_commis', true)->get();
         } elseif (auth()->guard('api')->check()) {
-            $commis = Agent::where('supervisor', auth()->guard('api')->user()->id)->where('is_commis', true)->orderBy('name')->get();
+            $commis = Agent::where('supervisor', auth()->guard('api')->user()->id)->where('is_commis', true)->orderBy('nom')->get();
         } else {
             return response()->json([
                 'status' => 'failed',
@@ -104,7 +104,9 @@ class AgentController extends Controller
     {
         $user = auth()->guard('api')->user();
         $validate = Validator::make($request->all(), [
-            'name' => 'required|string',
+            // 'name' => 'required|string',
+            'nom' => 'required|string',
+            'prenom' => 'required|string',
             'email' => 'required|email',
             'gsm' => 'required|string',
             'adresse' => 'required|string',
@@ -116,10 +118,11 @@ class AgentController extends Controller
                 'errors' => $validate->errors()
             ], 422);
         }
-        if (strlen($request->name) >= 6) {
-            $password = bcrypt(strtolower($request->name));
+        $username = strtolower($request->nom . $request->prenom);
+        if (strlen($username) >= 6) {
+            $password = bcrypt($username);
         } else {
-            $password = bcrypt(strtolower($request->name . $request->name)); //forming short names into passwords :3
+            $password = bcrypt($username); //forming short names into passwords :3
         }
         $is_Commis = 0;
         $supervisor = $user->id;
@@ -137,7 +140,9 @@ class AgentController extends Controller
         // $id = User::find(1);
         $agent = Agent::create([
             'supervisor' => $supervisor,
-            'name' => $request->name,
+            'name' => $username,
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
             'email' => $request->email,
             'gsm' => $request->gsm,
             'adresse' => $request->adresse,
@@ -204,7 +209,7 @@ class AgentController extends Controller
     public function update(Request $request, Agent $agent)
     {
         $validate = Validator::make($request->all(), [
-            'name' => 'string',
+
             'email' => 'string',
             'adresse' => 'string',
             'ville' => 'string',
@@ -217,7 +222,8 @@ class AgentController extends Controller
             ]);
         }
         if ((auth()->guard('api')->id() == $agent->supervisor) || (auth()->guard('agent-api')->id() == $agent->id)) {
-            $agent->name = $request->name;
+            $agent->nom = $request->nom;
+            $agent->prenom = $request->prenom;
             $agent->email = $request->email;
             $agent->gsm = $request->gsm;
             $agent->adresse = $request->adresse;
