@@ -14,8 +14,8 @@ class AddFirstandlastnameToAgentsTable extends Migration
     public function up()
     {
         Schema::table('agents', function (Blueprint $table) {
-            $table->string('prenom')->nullable(false)->after('code');
-            $table->string('nom')->nullable(false)->after('code');
+            $table->string('prenom')->nullable(false)->after('name');
+            $table->string('nom')->nullable(false)->after('name');
         });
     }
 
