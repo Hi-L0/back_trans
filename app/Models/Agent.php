@@ -22,6 +22,8 @@ class Agent extends Authenticatable implements JWTSubject
     // protected $guard = 'agents';
     protected $fillable = [
         'name',
+        'nom',
+        'prenom',
         'supervisor',
         'email',
         'gsm',
