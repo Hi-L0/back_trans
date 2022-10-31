@@ -33,7 +33,7 @@ class ClientController extends Controller
             $clients = Client::wherehas('users', function ($query) {
                 $query->where('user_id', auth()->guard('api')->user()->id);
                 //$query->distinct()->whereIn('id', $request->users);
-            })->get();
+            })->orderBy('nom')->get();
         } else {
             // $agent=Agent::find(auth()->guard('agent-api')->user()->id);
             // $super = $agent->supervisor;
@@ -56,7 +56,7 @@ class ClientController extends Controller
             $clients = Client::wherehas('users', function ($query) {
                 $query->where('user_id', auth()->guard('api')->user()->id);
                 //$query->distinct()->whereIn('id', $request->users);
-            })->get();
+            })->orderBy('nom')->get();
             $count = count($clients);
             return response()->json([
                 'status' => 'success',
