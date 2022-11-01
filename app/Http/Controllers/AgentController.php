@@ -211,8 +211,11 @@ class AgentController extends Controller
         $validate = Validator::make($request->all(), [
 
             'email' => 'string',
+            'gsm' => 'string',
             'adresse' => 'string',
             'ville' => 'string',
+            // 'password' => 'required|confirmed|min:6',   //we should implement this in the authcontrollers
+            // 'password_confirmation' => 'required'
         ]);
 
         if ($validate->failed()) {
@@ -228,8 +231,25 @@ class AgentController extends Controller
             $agent->gsm = $request->gsm;
             $agent->adresse = $request->adresse;
             $agent->ville = $request->ville;
-            $agent->password = bcrypt($request->password);
-            $agent->save(); //not sure yet
+            // if (strlen($request->password) >= 6) {
+            //     $agent->password = bcrypt($request->password);
+            //     $agent->save();
+            // } else {
+            //     return response()->json([
+            //         "message" => "password too short",
+            //     ]);
+            // }
+            //not sure yet
+            $agent->save();
+            return response()->json([
+                'status' => 'success',
+                'agent' => $agent,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'failure',
+                'message' => 'action not authorized',
+            ]);
         }
     }
 
