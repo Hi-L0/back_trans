@@ -24,6 +24,90 @@ class FactureController extends Controller
             'factures' => $factures,
         ]);
     }
+    public function createFacture(Request $req, Mission $mission)
+    {
+        //return $mission->id;
+        if (auth()->guard('api')->check()) {
+            if ($mission->etat == 4) {
+                $validator = Validator::make($req->all(), [
+                    'code_facture' => 'required',
+                    'designation' => 'required',
+                    'description' => 'required',
+                    'unite' => 'integer',
+                    'quantite' => 'required',
+                    'pu_ht' => 'required',
+                    'pu_ttc' => 'required',
+                    'remise' => 'float',
+                    'total_ht' => 'required',
+                    'total_ttc' => 'required',
+                    'taxe' => 'string|required',
+                    'net_payer_letters' => 'required|string',
+                    'mode_reglement' => 'required',
+                    'commantaire' => 'string',
+                    'price_change' => 'flaot',
+                    'taux_change' => 'float',
+                    'delivery_note' => 'required',
+                    'po_number' => 'required',
+                    'invoiceNum' => 'required',
+
+                ]);
+
+                if ($validator->failed()) {
+                    return response()->json([
+                        'status' => false,
+                        'errors' => $validator->errors(),
+                    ], 400);
+                }
+                $client = $mission->client;
+                //$transporteur = $mission->agent;
+
+                $facture = Facture::create(
+                    [
+                        'mission_id' => $mission->id,
+                        'owner' => auth()->guard('api')->user()->id,
+                        'client' => $client->id,
+                        'code_facture' => $req->code_facture,
+                        'designation' => $req->designation,
+                        'description' => $req->description,
+                        'date' => date('Y-m-d'),
+                        'unite' => $req->unite,
+                        'quantite' => $req->quantite,
+                        'pu_ht' => $req->pu_ht,
+                        'pu_ttc' => $req->pu_ttc,
+                        'remise' => $req->remise,
+                        'total_ht' => $req->total_ht,
+                        'total_ttc' => $req->total_ttc,
+                        'taxe' => $req->taxe,
+                        'price_change' => $req->price_change,
+                        'taux_change' => $req->taux_change,
+                        'delivery_note' => $req->delivery_note,
+                        'po_number' => $req->po_number,
+                        'invoiceNum' => $req->invoiceNum,
+                        'net_payer_letters' => $req->net_payer_letters,
+                        'mode_reglement' => $req->mode_reglement,
+                        'commantaire' => $req->commantaire,
+
+                    ]
+                );
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'facture created',
+                    'facture' => $facture,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'failure',
+                    'message' => "can't create facture to an unfinished mission",
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'failure',
+                'message' => 'Unauthorized',
+
+            ]);
+        }
+    }
     public function show(Mission $mission)
     {
         $facs = Facture::where('mission_id', $mission->id)->get();
@@ -150,11 +234,11 @@ class FactureController extends Controller
                 $missionData = $mission;
                 $client = $mission->client->nom . ' ' . $mission->client->prenom;
                 $factureData = $mission->facture;
-                $name = $mission->agent->name;
-                $commis = $mission->isCommis->name;
+                $transporteur_fullname = $mission->agent->nom . ' ' . $mission->agent->prenom;
+                $commis = $mission->isCommis->nom . ' ' . $mission->isCommis->prenom;
 
                 return response()->json([
-                    'transporteur' => $name,
+                    'transporteur' => $transporteur_fullname,
                     'commis' => $commis,
                     'mission_info' => $missionData,
                     'client' => $client,
