@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Client;
+use App\Models\Facture;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -71,6 +72,28 @@ class ClientController extends Controller
             ]);
         }
     }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function myInvoices()
+    {
+        $count = 0;
+        if (auth()->guard('client')->check()) {
+            $factures = Facture::where([['client', auth()->guard('client')->user()->id], ['isClosed', true]])->get();
+            $facCount = count($factures);
+            return response()->json([
+                'status' => 'success',
+                'facturesCount' => $facCount,
+                'factures' => $factures,
+            ]);
+        }
+        return response()->json([
+            'status' => 'failure',
+            'message' => 'Unauthorized',
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -111,7 +134,7 @@ class ClientController extends Controller
         $password = bcrypt(strtolower($request->nom . $request->prenom)); //passwordformat
 
         $client = new Client();
-        $client->code = $request->code;
+        $client->code = strtoupper($request->code);
         $client->nom = $request->nom;
         $client->prenom = $request->prenom;
         $client->societe = $request->societe;
@@ -159,8 +182,8 @@ class ClientController extends Controller
             }
             if ($clients == null) {
                 return response()->json([
-                    'status' => 'failure',
-                    'message' => 'Unauthorized',
+                    'status' => 'success',
+                    'message' => 'no client found',
                 ]);
             }
         } else {
@@ -191,7 +214,76 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
-        //
+        $val = Validator::make($request->all(), [
+            'code' => 'string',
+            'nom' => 'string',
+            'prenom' => 'string',
+            'societe' => 'string',
+            'tva' => 'string',
+            'cri' => 'string',
+            'email' => 'string',
+            'adresse' => 'string',
+            'ville' => 'string',
+            'cp' => 'integer',
+            'pays' => 'string',
+            //'password'=>'required|confirmed|min:6'      //i will see if i should implement it in the authController
+        ]);
+        if ($val->failed()) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => $val->errors(),
+            ]);
+        }
+        if (auth()->guard('client')->id() == $client->id) {
+            $client->nom = $request->nom;
+            $client->prenom = $request->prenom;
+            $client->email = $request->email;
+            $client->adresse = $request->adresse;
+            $client->ville = $request->ville;
+            $client->cp = $request->cp;
+            $client->pays = $request->pays;
+            $client->societe = $request->societe;
+            $client->cri = $request->cri;
+
+            $client->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'your profile has been updated successfully',
+                'client' => $client,
+            ]);
+        }
+        if (auth()->guard('api')->check()) {
+            $clients = Client::wherehas('users', function ($query) {
+                $query->where('user_id', auth()->guard('api')->user()->id);
+                //$query->distinct()->whereIn('id', $request->users);
+            })->get();
+            foreach ($clients as $item) {
+                if ($item->id == $client->id) {
+                    $client->code = $request->code;
+                    $client->nom = $request->nom;
+                    $client->prenom = $request->prenom;
+                    $client->email = $request->email;
+                    $client->adresse = $request->adresse;
+                    $client->ville = $request->ville;
+                    $client->cp = $request->cp;
+                    $client->pays = $request->pays;
+                    $client->societe = $request->societe;
+                    $client->cri = $request->cri;
+                    $client->tva = $request->tva;
+                    $client->save();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'your profile has been updated successfully',
+                        'client' => $client,
+                    ]);
+                }
+            }
+        } else {
+            return response()->json([
+                'status' => 'failure',
+                'message' => 'action not authorized',
+            ]);
+        }
     }
 
     /**
