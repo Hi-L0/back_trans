@@ -25,16 +25,23 @@ class ProfileController extends Controller
 
     public function myProfile()
     {
+        $isAgent = true;
         if (auth()->guard('api')->check()) {
-            $profile = User::where('id', auth()->guard('api')->id())->get();
+            $profile = User::where('id', auth()->guard('api')->user()->id)->get();
+            $role = $profile[0]->roles;
         } elseif (auth()->guard('agent-api')->check()) {
             $profile = Agent::where('id', auth()->guard('agent-api')->id())->get();
+            $role = $profile[0]->roles;
         } elseif (auth()->guard('client')->check()) {
             $profile = Client::where('id', auth()->guard('client')->id())->get();
+            $isAgent = false;
         }
+
         return response()->json([
             'status' => 'success',
             'profile' => $profile,
+            'isAgent' => $isAgent
+
         ]);
     }
 }
