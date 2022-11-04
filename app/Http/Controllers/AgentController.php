@@ -31,24 +31,26 @@ class AgentController extends Controller
 
     public function index()
     {
+        $fullName = auth()->guard('api')->user()->nom . ' ' . auth()->guard('api')->user()->prenom;
         $agents = Agent::where('supervisor', auth()->guard('api')->user()->id)->orderBy('nom')->get();
         //$super = $agents->manager()->name;
         $agentsCount = count($agents);
         return response()->json([
             'status' => 'success',
             'myAgentsCount' => $agentsCount,
-            'supervisor' => auth('api')->user()->name,
+            'supervisor' => $fullName,
             'agents' => $agents,
         ]);
     }
     public function getAllTransporteur()
     {
+        $fullName = auth()->guard('api')->user()->nom . ' ' . auth()->guard('api')->user()->prenom;
         $transporteurs = Agent::where('supervisor', auth()->guard('api')->user()->id)->where('is_commis', false)->orderBy('nom')->get();
         $transporteursCount = count($transporteurs);
         return response()->json([
             'status' => 'success',
             'mytransporteursCount' => $transporteursCount,
-            'supervisor' => auth('api')->user()->name,
+            'supervisor' => $fullName,
             'transporteurs' => $transporteurs,
         ]);
     }
@@ -170,10 +172,10 @@ class AgentController extends Controller
      */
     public function show(Agent $agent)
     {
-        if ($agent->supervisor == auth('api')->user()->id) {
+        if (($agent->supervisor == auth('api')->user()->id)) {
             $agentRole = $agent->roles()->select('code', 'desc')->get();
             //$supervisor = $agent->supervisor->name;  //we can't do supervisor cuz we have an existing column with the same name
-            $supervisor = $agent->manager->name;
+            $supervisor = $agent->manager->nom . ' ' . $agent->manager->prenom;
             return response()->json([
                 'status' => 'success',
                 'supervisor' => $supervisor,
@@ -243,6 +245,7 @@ class AgentController extends Controller
             $agent->save();
             return response()->json([
                 'status' => 'success',
+                'message' => 'profile has been updated successfully',
                 'agent' => $agent,
             ]);
         } else {
