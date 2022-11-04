@@ -38,7 +38,10 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'name' => 'required|string',
+            //'name'=>'required|string',
+            'nom' => 'required|string',
+            'prenom' => 'required|string',
+            'societe' => 'required|string',
             'email' => 'required|email',
             'password' => 'required|confirmed|min:6'
         ]);
@@ -85,7 +88,7 @@ class AuthController extends Controller
         return response()->json([
             "message" => $name . ' logged in successfully',
             'access_token' => $token,
-            'user' => $this->user->name,
+            'user' => $this->user->nom . ' ' . $this->user->prenom,
             'isadmin' => true,
             'token_type' => 'bearer',
             'token_validity' => auth()->guard('api')->factory()->getTTL() * 60,
