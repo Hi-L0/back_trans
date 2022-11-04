@@ -21,8 +21,17 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
+        'nom',
+        'prenom',
+        'societe',
         'email',
         'password',
+        'gsm',
+        'adresse',
+        'ville',
+        'pays',
+        'cp',
+
     ];
 
     /**
@@ -74,6 +83,10 @@ class User extends Authenticatable implements JWTSubject
     public function missions()
     {
         return $this->hasManyThrough('App\Models\Mission', 'App\Models\Agent', 'supervisor', 'user_id', 'id', 'id')->orderBy('created_at', 'DESC');
+    }
+    public function missions_inprogress()
+    {
+        return $this->missions()->where('etat', '!=', 4)->orderBy('created_at', 'DESC');
     }
     public function finishedMissions()
     {
