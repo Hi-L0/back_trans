@@ -113,6 +113,8 @@ class AgentController extends Controller
             'gsm' => 'required|string',
             'adresse' => 'required|string',
             'ville' => 'required|string',
+            'cp' => 'integer',
+            'pays' => 'string',
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -121,6 +123,7 @@ class AgentController extends Controller
             ], 422);
         }
         $username = strtolower($request->nom . $request->prenom);
+
         if (strlen($username) >= 6) {
             $password = bcrypt($username);
         } else {
@@ -128,6 +131,7 @@ class AgentController extends Controller
         }
         $is_Commis = 0;
         $supervisor = $user->id;
+        $societe = $user->societe;  //societe column is defined by the suppervisor's company
         if (is_array($request->roles)) {
             foreach ($request->roles as $i => $value) {
                 if ($request->roles[$i] == 3) {      //3 means Role::find(3)->id;
@@ -146,9 +150,12 @@ class AgentController extends Controller
             'nom' => $request->nom,
             'prenom' => $request->prenom,
             'email' => $request->email,
+            'societe' => $societe,
             'gsm' => $request->gsm,
             'adresse' => $request->adresse,
             'ville' => $request->ville,
+            'cp' => $request->cp,
+            'pays' => $request->pays,
             'is_commis' => $is_Commis,
             'password' => $password,
 
@@ -176,11 +183,13 @@ class AgentController extends Controller
             $agentRole = $agent->roles()->select('code', 'desc')->get();
             //$supervisor = $agent->supervisor->name;  //we can't do supervisor cuz we have an existing column with the same name
             $supervisor = $agent->manager->nom . ' ' . $agent->manager->prenom;
+
             return response()->json([
                 'status' => 'success',
                 'supervisor' => $supervisor,
                 'role' => $agentRole,
                 'agent' => $agent,
+
             ]);
         } else {
             return response()->json([
