@@ -26,9 +26,12 @@ class Agent extends Authenticatable implements JWTSubject
         'prenom',
         'supervisor',
         'email',
+        'societe',
         'gsm',
         'adresse',
         'ville',
+        'pays',
+        'cp',
         'is_commis',
         'password',
     ];
