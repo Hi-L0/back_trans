@@ -38,7 +38,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            //'name'=>'required|string',
+            // 'name' => 'string',
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'societe' => 'required|string',
@@ -52,12 +52,17 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create(array_merge(
-            $validate->validated(),
+        $user = User::create(
+            // $validate->validated(),
             [
+                'name' => strtolower($request->nom . $request->prenom),
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'societe' => $request->societe,
+                'email' => $request->email,
                 'password' => bcrypt($request->password),
             ]
-        ));
+        );
         $admin = Role::where('code', 'admin')->get();
         $user->roles()->attach($admin[0]->id);
 
