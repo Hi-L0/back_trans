@@ -117,7 +117,8 @@
         .netPayLettre {
             text-align: right;
             margin-top: 100px;
-            margin-left: 100px;
+            margin-left: 60%;
+            max-width: 300px;
 
         }
     </style>
@@ -159,7 +160,7 @@
     <section>
         <table>
             <thead class="t_header">
-                <th style="text-align:left;">Designation</th>
+                <th style="text-align:left; width:6rem">Designation</th>
                 <th>Unité</th>
                 <th>Quantite</th>
                 <th>PU HT</th>
@@ -171,7 +172,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td style="text-align: left; width:250px; vertical-align: top;">{{ $mission->facture->designation }}
+                    <td style="text-align: left; width:230px; vertical-align: top;">{{ $mission->facture->designation }}
                     </td>
                     <td style=" vertical-align: top;">{{ $mission->facture->unite }}</td>
                     <td style=" vertical-align: top;">{{ number_format($mission->facture->quantite, 2, ',', ' ') }}
@@ -243,8 +244,9 @@
         </div>
         <div class="price_part">
             <div style="font-size: 14px; padding-left:10px ">
-                total HT: <span
-                    style="text-align:right; margin-left:75px;">{{ number_format($mission->facture->total_ht, 2, ',', ' ') }}DHS</span>
+                total HT:
+                <span
+                    style="text-align:right; margin-left:70px;max-width:100px">{{ number_format($mission->facture->total_ht, 2, ',', ' ') }}DHS</span>
             </div>
             <div style="padding-top: 10px; font-size:12px; text-align:right ">
                 {{ $mission->facture->taxe }}. <span
