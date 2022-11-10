@@ -248,7 +248,7 @@ class ClientController extends Controller
             $client->save();
             return response()->json([
                 'status' => 'success',
-                'message' => 'your profile has been updated successfully',
+                'message' => 'this profile has been updated successfully',
                 'client' => $client,
             ]);
         }
@@ -259,7 +259,7 @@ class ClientController extends Controller
             })->get();
             foreach ($clients as $item) {
                 if ($item->id == $client->id) {
-                    $client->code = $request->code;
+                    $client->code = strtoupper($request->code);
                     $client->nom = $request->nom;
                     $client->prenom = $request->prenom;
                     $client->email = $request->email;
@@ -273,7 +273,7 @@ class ClientController extends Controller
                     $client->save();
                     return response()->json([
                         'status' => 'success',
-                        'message' => 'your profile has been updated successfully',
+                        'message' => 'this profile has been updated successfully',
                         'client' => $client,
                     ]);
                 }
