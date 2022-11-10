@@ -22,11 +22,11 @@ class CreateFacturesTable extends Migration
             $table->string('designation');
             $table->integer('unite')->nullable()->default(0);
             $table->integer('quantite')->nullable()->default(1);
-            $table->float('pu_ht');
-            $table->float('pu_ttc');
+            $table->float('pu_ht', 12, 2);
+            $table->float('pu_ttc', 12, 2);
             $table->float('remise')->nullable()->default(0);
-            $table->float('total_ht');
-            $table->float('total_ttc');
+            $table->float('total_ht', 12, 2);
+            $table->float('total_ttc', 12, 2);
             $table->string('taxe');
             $table->string('description');
             $table->string('mode_reglement');

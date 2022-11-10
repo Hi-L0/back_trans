@@ -14,8 +14,8 @@ class AddColumnsToFacturesTable extends Migration
     public function up()
     {
         Schema::table('factures', function (Blueprint $table) {
-            $table->float('price_change')->after('description')->nullable(false);
-            $table->float('taux_change')->after('description')->nullable(false);
+            $table->float('price_change', 12, 2)->after('description')->nullable(false);
+            $table->float('taux_change', 12, 2)->after('description')->nullable(false);
             $table->string('delivery_note')->after('taxe')->nullable();
             $table->string('po_number')->nullable()->unique();
             $table->string('invoiceNum')->nullable()->unique();
