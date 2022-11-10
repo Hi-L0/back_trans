@@ -5,7 +5,7 @@
 
     <style>
         body {
-            margin-left: -30px;
+            margin-left: -35px;
         }
 
         .header {
@@ -51,8 +51,9 @@
         }
 
         table {
-            margin-left: auto;
+            margin-left: -5px;
             width: 100%;
+            max-width: 100%;
 
         }
 
@@ -116,7 +117,7 @@
 
         .netPayLettre {
             text-align: right;
-            margin-top: 100px;
+            margin-top: 110px;
             margin-left: 60%;
             max-width: 300px;
 
@@ -172,19 +173,19 @@
             </thead>
             <tbody>
                 <tr>
-                    <td style="text-align: left; width:230px; vertical-align: top;">{{ $mission->facture->designation }}
+                    <td style="text-align: left; width:210px; vertical-align: top;">{{ $mission->facture->designation }}
                     </td>
                     <td style=" vertical-align: top;">{{ $mission->facture->unite }}</td>
                     <td style=" vertical-align: top;">{{ number_format($mission->facture->quantite, 2, ',', ' ') }}
                     </td>
-                    <td width='80px' style=" vertical-align: top;">
+                    <td width='90px' style=" vertical-align: top;">
                         {{ number_format($mission->facture->pu_ht, 2, ',', ' ') }}</td>
-                    <td width='80px' style=" vertical-align: top;">
+                    <td width='90px' style=" vertical-align: top;">
                         {{ number_format($mission->facture->pu_ttc, 2, ',', ' ') }}</td>
                     <td style=" vertical-align: top;">{{ $mission->facture->remise }}</td>
-                    <td width='80px' style=" vertical-align: top;">
+                    <td width='90px' style=" vertical-align: top;">
                         {{ number_format($mission->facture->total_ht, 2, ',', ' ') }}</td>
-                    <td width='80px' style=" vertical-align: top;">
+                    <td width='90px' style=" vertical-align: top;">
                         {{ number_format($mission->facture->total_ttc, 2, ',', ' ') }}</td>
                     <td style=" vertical-align: top;">{{ $mission->facture->taxe }}</td>
 
