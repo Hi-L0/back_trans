@@ -116,7 +116,7 @@ class MissionController extends Controller
         $nbre = 0;
         if (auth()->guard('client')->check()) {
             $user = auth()->guard('client')->user();
-            $missions = Mission::where([['client_id', auth()->guard('client')->user()->id], ['etat', "!=", 4]])->get();
+            $missions = Mission::where([['client_id', auth()->guard('client')->user()->id], ['etat', "!=", 4]])->orderBy('created_at', 'DESC')->get();
 
             $nbre = count($missions);
 
@@ -178,7 +178,7 @@ class MissionController extends Controller
         $count = 0;
         // $mission = array();
         if (auth()->guard('client')->check()) {
-            $missions = Mission::where([['client_id', auth()->guard('client')->id()], ['etat', 4]])->get();
+            $missions = Mission::where([['client_id', auth()->guard('client')->id()], ['etat', 4]])->latest()->get();
             $count = count($missions);
             return response()->json([
                 'status' => 'success',
@@ -206,10 +206,10 @@ class MissionController extends Controller
             $role = $this->user->roles()->select('code')->get();
             for ($i = 0; $i < sizeof($role); $i++) { //---missions for transporteur
                 if ($role[$i]->code == 'tr') {
-                    $missions = Mission::where([['user_id', auth()->guard('agent-api')->id()], ['etat', 4]])->get();
+                    $missions = Mission::where([['user_id', auth()->guard('agent-api')->id()], ['etat', 4]])->latest()->get();
                     $count = count($missions);
                 } else { //this is commis missions :)
-                    $missions = Mission::where([['commis', auth()->guard('agent-api')->id()], ['etat', 4]])->get();
+                    $missions = Mission::where([['commis', auth()->guard('agent-api')->id()], ['etat', 4]])->latest()->get();
                     $count = count($missions);
                 }
             }
@@ -331,8 +331,8 @@ class MissionController extends Controller
 
         // $user = Auth::user(); //Auth::user
         $agent = $mission->agent;
-        $fullname = $mission->agent->nom . ' ' . $mission->agent->prenom;
-        $commis = $mission->isCommis->name;
+        $fullname = $mission->agent->nom . ' ' . $mission->agent->prenom; //agent's full name
+        $commis = $mission->isCommis->nom . ' ' . $mission->isCommis->prenom; //commis' full name
         $clientName = $mission->client->nom;
         $clientPren = $mission->client->prenom;
 
@@ -500,9 +500,9 @@ class MissionController extends Controller
 
         $steps = [1, 2, 3, 4];  //steps for the missions
 
-        if (!is_null($mission->bon_scaner) && !is_null($mission->num_mrn)) {     //so that we can track mission's steps
+        if (!is_null($mission->bon_scaner) && !is_null($mission->num_mrn) && !is_null($mission->navire)) {     //so that we can track mission's steps
             $mission->etat = $steps[1];
-            if (!is_null($mission->bl_maritime)) {
+            if (!is_null($mission->bl_maritime) && !is_null($mission->date_embarq)) {
                 $mission->etat = $steps[2];
                 if (!is_null($mission->matricule_european)) {
                     $mission->etat = $steps[3];
