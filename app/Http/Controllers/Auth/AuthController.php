@@ -65,11 +65,14 @@ class AuthController extends Controller
         );
         $admin = Role::where('code', 'admin')->get();
         $user->roles()->attach($admin[0]->id);
+        //$token = $request->createToken()->plainTextToken;
 
         return response()->json([
             'status' => 'success',
             'message' => 'user created successfully',
             'user' => $user,
+            //'token' => $token,
+            'isAdmin' => true,
         ]);
     }
 
@@ -96,7 +99,8 @@ class AuthController extends Controller
             'user' => $this->user->nom . ' ' . $this->user->prenom,
             'isadmin' => true,
             'token_type' => 'bearer',
-            'token_validity' => auth()->guard('api')->factory()->getTTL() * 60,
+            'token_validity' => config('jwt.ttl') * 60
+            //'token_validity' => auth()->guard('api')->factory()->getTTL() * 60,
 
         ]);
     }

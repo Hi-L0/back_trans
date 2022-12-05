@@ -31,6 +31,14 @@ Route::group([
     Route::post('logout', 'AuthController@logout');
     Route::post('me', 'AuthController@me');
 });
+//forgot password
+Route::group([
+    'prefix' => 'auth',
+    'namespace' => 'App\Http\Controllers',
+], function () {
+    Route::post('forgot-password', 'NewPasswordController@forgotPassword');
+    Route::post('reset-password', 'NewPasswordController@reset');
+});
 
 //Auth for agents Routes
 

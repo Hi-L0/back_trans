@@ -241,7 +241,7 @@ class ClientController extends Controller
             $client->adresse = $request->adresse;
             $client->ville = $request->ville;
             $client->cp = $request->cp;
-            $client->pays = $request->pays;
+            $client->pays = strtoupper($request->pays);
             $client->societe = $request->societe;
             $client->cri = $request->cri;
 
@@ -266,7 +266,7 @@ class ClientController extends Controller
                     $client->adresse = $request->adresse;
                     $client->ville = $request->ville;
                     $client->cp = $request->cp;
-                    $client->pays = $request->pays;
+                    $client->pays = strtoupper($request->pays);
                     $client->societe = $request->societe;
                     $client->cri = $request->cri;
                     $client->tva = $request->tva;

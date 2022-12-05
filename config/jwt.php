@@ -101,7 +101,7 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', 60),
+    'ttl' => env('JWT_TTL', 240), //it was 60 there is one in the .env file 150min==2.5hours
 
     /*
     |--------------------------------------------------------------------------

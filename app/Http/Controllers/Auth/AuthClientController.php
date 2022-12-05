@@ -55,7 +55,8 @@ class AuthClientController extends Controller
             'client' =>  $nom . ' ' . $prenom,
             'token_type' => 'bearer',
             'isadmin' => false,
-            'token_validity' => auth()->guard('client')->factory()->getTTL() * 120,
+            'token_validity' => config('jwt.ttl') * 60,
+            '__client' => true,
 
         ]);
     }

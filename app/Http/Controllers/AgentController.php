@@ -225,6 +225,9 @@ class AgentController extends Controller
             'gsm' => 'string',
             'adresse' => 'string',
             'ville' => 'string',
+            'pays' => 'string',
+            'cp' => 'string',
+            'societe' => 'string'
             // 'password' => 'required|confirmed|min:6',   //we should implement this in the authcontrollers
             // 'password_confirmation' => 'required'
         ]);
@@ -236,12 +239,16 @@ class AgentController extends Controller
             ]);
         }
         if ((auth()->guard('api')->id() == $agent->supervisor) || (auth()->guard('agent-api')->id() == $agent->id)) {
+            $agent->societe = $request->societe;
+            $agent->name = $request->name;
             $agent->nom = $request->nom;
             $agent->prenom = $request->prenom;
             $agent->email = $request->email;
             $agent->gsm = $request->gsm;
             $agent->adresse = $request->adresse;
             $agent->ville = $request->ville;
+            $agent->pays = strtoupper($request->pays);
+            $agent->cp = $request->cp;
             // if (strlen($request->password) >= 6) {
             //     $agent->password = bcrypt($request->password);
             //     $agent->save();
@@ -274,13 +281,15 @@ class AgentController extends Controller
     public function destroy(Agent $agent)
     {
         if (auth()->guard('api')->check()) {
-            if ($agent->delete()) {
+            if (auth()->guard('api')->id() == $agent->supervisor) {
+                if ($agent->delete()) {
 
-                return response()->json([
-                    'status' => true,
-                    'message' => "agent deleted successfully",
-                    'agent' => $agent,
-                ]);
+                    return response()->json([
+                        'status' => true,
+                        'message' => "agent deleted successfully",
+                        'agent' => $agent,
+                    ]);
+                }
             }
         } else {
             return response()->json([

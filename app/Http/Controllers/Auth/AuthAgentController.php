@@ -55,7 +55,8 @@ class AuthAgentController extends Controller
             'agent' => $this->agent->nom . ' ' . $this->agent->prenom,
             'token_type' => 'bearer',
             'isadmin' => false,
-            'token_validity' => auth()->guard('agent-api')->factory()->getTTL() * 120,
+            'token_validity' => config('jwt.ttl') * 60,
+            //'token_validity' => auth()->guard('agent-api')->factory()->getTTL() * 120,
 
         ]);
     }

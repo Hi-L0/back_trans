@@ -129,14 +129,32 @@ class FactureController extends Controller
     }
     public function closeFacture(Mission $mission)
     {
+        $facture = $mission->facture;
         if (auth()->guard('api')->check()) {
-            $facture = $mission->facture;
-            $facture->isClosed = true;
-            $facture->save();
+            if (auth()->guard('api')->user()->id == $facture->owner) {
+                $facture->isClosed = true;
+                $facture->save();
+                if ($facture->isClosed = true) {
+                    $mission->isModifiable = false;
+                    $mission->save();
+                }
 
+
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'facture is closed',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Unauthorized',
+                ]);
+            }
+        } else {
             return response()->json([
-                'status' => 'success',
-                'message' => 'facture is closed',
+                'status' => 'failed',
+                'message' => 'Unauthorized',
             ]);
         }
     }
@@ -145,7 +163,7 @@ class FactureController extends Controller
     {
         $count = 0;
         if (auth()->guard('api')->check()) {
-            $facs = auth()->guard('api')->user()->closedFactures;
+            $facs = auth()->guard('api')->user()->closedFactures;    //we have this eloquant that makes it easier
             $count = count($facs);
             return response()->json([
                 'status' => 'success',

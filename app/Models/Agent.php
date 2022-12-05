@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -84,5 +84,10 @@ class Agent extends Authenticatable implements JWTSubject
     public function roles()
     {
         return $this->belongsToMany('App\Models\Role');
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'http://127.0.0.1:3000/auth/reset-password/' . $token;
+        $this->notify(new ResetPasswordNotification($url));
     }
 }

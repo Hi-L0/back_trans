@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -100,5 +101,10 @@ class User extends Authenticatable implements JWTSubject
     public function closedFactures()
     {
         return $this->factures()->where('isClosed', true)->orderBy('created_at', 'DESC');
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'http://127.0.0.1:3000/auth/reset-password/' . $token;
+        $this->notify(new ResetPasswordNotification($url));
     }
 }
