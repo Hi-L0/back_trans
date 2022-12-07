@@ -310,6 +310,7 @@ class FactureController extends Controller
             $mission = Mission::where('id', $facture->mission_id)->get();
             $facture->delete();
             $mission->invoice = false;
+            $mission->isModifiable = true;
             $mission->save();
             return response()->json([
                 'status' => 'success',
