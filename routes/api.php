@@ -103,7 +103,7 @@ Route::group([
 
     Route::resource('client', 'ClientController');
     Route::get('allClients', 'ClientController@getAllClients');
-    Route::get('mesFactures', 'CLientController@myInvoices');
+    Route::get('mesFactures', 'ClientController@myInvoices');
 });
 
 //Roles Routes
