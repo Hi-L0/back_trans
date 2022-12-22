@@ -146,3 +146,12 @@ Route::group([
     Route::get('myprofile/{id}', 'ProfileController@showThisProfile');
     Route::put('updateProfile/{id}', 'ProfileController@updateMyProfile');
 });
+
+
+//stats
+Route::group([
+    'middleware' => 'api',
+    'namespace' => 'App\Http\Controllers',
+], function ($router) {
+    Route::get('stats/{id}', 'CaController@getDataCa');
+});
