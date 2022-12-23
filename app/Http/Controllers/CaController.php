@@ -14,6 +14,7 @@ class CaController extends Controller
         // $data = auth()->guard('api')->user()->closedFactures->sum('total_ttc')->where('YEAR(date)', $an)->groupBy('MONTH(date)');
         // $data=Facture::selectRow();
         if (auth()->guard('api')->check()) {
+            $reveYearly = auth()->guard('api')->user()->closedFactures()->whereYear('date', '=', $an)->sum('total_ttc');
             $data = Facture::select(
                 DB::raw('sum(total_ttc) as sums'),
                 DB::raw("DATE_FORMAT(date,'%M %Y') as months"),
@@ -35,6 +36,7 @@ class CaController extends Controller
 
             // [0,10000,5000,7000,9000,0,0,0,0,15000,0,0]
             return response()->json([
+                'revenue' => $reveYearly,
                 'dataPerMonth' => $dataPerMonth,
             ]);
             // return response()->json([

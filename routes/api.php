@@ -148,7 +148,7 @@ Route::group([
 });
 
 
-//stats
+//stats Routes
 Route::group([
     'middleware' => 'api',
     'namespace' => 'App\Http\Controllers',
