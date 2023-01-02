@@ -134,6 +134,9 @@ Route::group([
     Route::get('showFacture/{mission}', 'FactureController@showFacInfo');
     Route::put('update-facture/{mission}', 'FactureController@updateFacture');
     Route::get('closed-factures', 'FactureController@getClosedFactures');
+    Route::get('paiment-facture/{facture}', 'FactureController@paidFacture');
+    Route::get('paid-factures', 'FactureController@getPaidFactures');
+    Route::get('notpaid-factures', 'FactureController@getnotPaidFactures');
 });
 
 //Profile Routes
