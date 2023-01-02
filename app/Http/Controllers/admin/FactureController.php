@@ -138,9 +138,6 @@ class FactureController extends Controller
                     $mission->isModifiable = false;
                     $mission->save();
                 }
-
-
-
                 return response()->json([
                     'status' => 'success',
                     'message' => 'facture is closed',
@@ -155,6 +152,31 @@ class FactureController extends Controller
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Unauthorized',
+            ]);
+        }
+    }
+
+    //effectuer le paiment
+    public function paidFacture(Facture $facture)
+    {
+        if (auth()->guard('api')->check()) {
+            if (auth()->guard('api')->user()->id == $facture->owner && $facture->isClosed == 1) {
+                $facture->isPaid = true;
+                $facture->save();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'facture est désormais payée'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'danger',
+                    'message' => 'invoice not validated',
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'danger',
+                'message' => 'unauthorized',
             ]);
         }
     }
@@ -178,6 +200,43 @@ class FactureController extends Controller
         }
     }
 
+    public function getPaidFactures()
+    {
+        $count = 0;
+        if (auth()->guard('api')->check()) {
+            $Paid_facs = auth()->guard('api')->user()->paidFactures;
+            $count = count($Paid_facs);
+            return response()->json([
+                'status' => 'success',
+                'count' => $count,
+                'factures' => $Paid_facs,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Unauthorized',
+            ]);
+        }
+    }
+
+    public function getnotPaidFactures()
+    {
+        $count = 0;
+        if (auth()->guard('api')->check()) {
+            $notPaid_facs = auth()->guard('api')->user()->notPaidFactures;
+            $count = count($notPaid_facs);
+            return response()->json([
+                'status' => 'success',
+                'count' => $count,
+                'factures' => $notPaid_facs,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Unauthorized',
+            ]);
+        }
+    }
     public function updateFacture(Request $request, Mission $mission)
     {
         $facture = $mission->facture;
