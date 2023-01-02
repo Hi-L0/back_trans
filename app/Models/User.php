@@ -102,6 +102,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->factures()->where('isClosed', true)->orderBy('created_at', 'DESC');
     }
+    public function PaidFactures()
+    {
+        return $this->closedFactures()->where('isPaid', true)->orderBy('created_at', 'DESC');
+    }
+    public function notPaidFactures()
+    {
+        return $this->closedFactures()->where('isPaid', false)->orderBy('created_at', 'DESC');
+    }
     public function sendPasswordResetNotification($token)
     {
         $url = 'http://127.0.0.1:3000/auth/reset-password/' . $token;
