@@ -36,7 +36,6 @@ class CaController extends Controller
                 $dataPerMonth[$item->monthKey - 1] = $item->sums;
             }
             //this is for the factures that hasn't been paid yet
-            $reveYearly_notpaid = auth()->guard('api')->user()->closedFactures()->where('isPaid', false)->whereYear('date', '=', $an)->sum('total_ttc');
             $data_revNotPaid = Facture::select(
                 DB::raw('sum(total_ttc) as sums'),
                 DB::raw('date'),
@@ -52,14 +51,19 @@ class CaController extends Controller
                 ->groupBy('date', 'months', 'year', 'monthKey', 'delai')->get();
 
             //this is an array that sorts sums value into 12 months
-
             $revNotPaidPerMonth = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
+            //today's date
+            $today = date('Y-m-d');
+            $reveYearly_notpaid = 0;
             foreach ($data_revNotPaid as $item) {
-                if ($revNotPaidPerMonth[$item->monthKey - 1] != 0) {
-                    $revNotPaidPerMonth[$item->monthKey - 1] = $revNotPaidPerMonth[$item->monthKey - 1] + $item->sums;
-                } else {
-                    $revNotPaidPerMonth[$item->monthKey - 1] = $item->sums;
+                $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai . 'days'));
+                if ($today < $paidelay) { //i added this so that it checks if its in recovery state or it's just unpaid and still within the delay period
+                    $reveYearly_notpaid = auth()->guard('api')->user()->closedFactures()->where('isPaid', false)->whereYear('date', '=', $an)->sum('total_ttc');
+                    if ($revNotPaidPerMonth[$item->monthKey - 1] != 0) {
+                        $revNotPaidPerMonth[$item->monthKey - 1] = $revNotPaidPerMonth[$item->monthKey - 1] + $item->sums;
+                    } else {
+                        $revNotPaidPerMonth[$item->monthKey - 1] = $item->sums;
+                    }
                 }
             }
             // [0,10000,5000,7000,9000,0,0,0,0,15000,0,0]
@@ -68,7 +72,6 @@ class CaController extends Controller
             $j = 0;
             $sumRecouvrement = 0;
             foreach ($data_revNotPaid as $item) {
-                $today = date('Y-m-d');
                 $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai . 'days')); //delai paiment date
                 if ($today > $paidelay) {
                     $i = $j;
