@@ -26,6 +26,7 @@ class Facture extends Model
         'taxe',
         'net_payer_letters',
         'mode_reglement',
+        'delai_paiement',
         'commantaire',
         'price_change',
         'taux_change',
