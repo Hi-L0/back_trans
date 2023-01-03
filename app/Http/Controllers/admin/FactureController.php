@@ -43,6 +43,7 @@ class FactureController extends Controller
                     'taxe' => 'string|required',
                     'net_payer_letters' => 'required|string',
                     'mode_reglement' => 'required',
+                    'delai_paiement' => 'required',
                     'commantaire' => 'string',
                     'price_change' => 'flaot',
                     'taux_change' => 'float',
@@ -85,6 +86,7 @@ class FactureController extends Controller
                         'invoiceNum' => $req->invoiceNum,
                         'net_payer_letters' => $req->net_payer_letters,
                         'mode_reglement' => $req->mode_reglement,
+                        'delai_paiement' => $req->delai_paiement,
                         'commantaire' => $req->commantaire,
 
                     ]
@@ -237,6 +239,38 @@ class FactureController extends Controller
             ]);
         }
     }
+
+    //factures in recouvrement state (not paid and the paiment delay has been passed)
+
+    public function getRecouvrementFac()
+    {
+        $count = 0;
+        if (auth()->guard('api')->check()) {
+            $facs = auth()->guard('api')->user()->notPaidFactures;
+            // $count = count($facs);
+            $facturesList = [];
+            $j = 0;
+            foreach ($facs as $item) {
+                $today = date('Y-m-d');
+                $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai_paiement . 'days')); //delai paiment date
+                if ($today > $paidelay) {
+                    $i = $j;
+                    $facturesList[$i] = $item; //new facture list of the recouvrement invoices in the making
+                    $j = $i + 1;
+                }
+            }
+            return response()->json([
+                'count' => count($facturesList),
+                'factures' => $facturesList,
+            ]);
+            // } else {
+            //     return response()->json([
+            //         'status' => 'failed',
+            //         'message' => 'Unauthorized',
+            //     ]);
+        }
+    }
+
     public function updateFacture(Request $request, Mission $mission)
     {
         $facture = $mission->facture;
@@ -255,6 +289,7 @@ class FactureController extends Controller
             'taxe' => 'string|required',
             'net_payer_letters' => 'required|string',
             'mode_reglement' => 'required',
+            'delai_paiement' => 'required',
             'commantaire' => 'string',
             'price_change' => 'float',
             'taux_change' => 'float',
@@ -283,6 +318,7 @@ class FactureController extends Controller
             $facture->taxe = $request->taxe;
             $facture->net_payer_letters = $request->net_payer_letters;
             $facture->mode_reglement = $request->mode_reglement;
+            $facture->delai_paiement = $request->delai_paiement;
             $facture->commantaire = $request->commantaire;
             $facture->price_change = $request->price_change;
             $facture->taux_change = $request->taux_change;
@@ -335,8 +371,8 @@ class FactureController extends Controller
     {
         if ($mission->etat == 4) {
             $facture = $mission->facture;
-
-            if (auth()->guard('api')->user()->id == $facture->owner) {
+            //i added facture is closed condition so that we can't recreate another invoice while it's already closed
+            if (auth()->guard('api')->user()->id == $facture->owner && $facture->isClosed == false) {
                 $facture = $mission->facture;
                 $client = $mission->client;  //so that the attribut 'client' show up in the json call
                 $myFacture = 'factures/' . $facture->code_facture . '.pdf';
