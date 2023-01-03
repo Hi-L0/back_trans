@@ -137,6 +137,7 @@ Route::group([
     Route::get('paiment-facture/{facture}', 'FactureController@paidFacture');
     Route::get('paid-factures', 'FactureController@getPaidFactures');
     Route::get('notpaid-factures', 'FactureController@getnotPaidFactures');
+    Route::get('recouvrement', 'FactureController@getRecouvrementFac');
 });
 
 //Profile Routes
@@ -157,4 +158,6 @@ Route::group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     Route::get('stats/{id}', 'CaController@getDataCa');
+    // Route::get('stats-recouvrement/{id}', 'CaController@getRecouvrementRev');
+    // Route::get('dateete', 'CaController@getYearOp');
 });
