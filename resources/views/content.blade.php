@@ -237,7 +237,7 @@
                 Mode de règlement: {{ $mission->facture->mode_reglement }}
             </div>
             <div>
-                {{ $mission->facture->commantaire }}
+                Paiement {{ $mission->facture->delai_paiement }} jours fin de mois
             </div>
             <div style="margin-top: 20px; font-size:14px;">
                 Article d'exonération de TVA: 8-29 de la loi N°30-85 relative à la TVA
