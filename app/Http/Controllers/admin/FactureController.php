@@ -226,11 +226,23 @@ class FactureController extends Controller
         $count = 0;
         if (auth()->guard('api')->check()) {
             $notPaid_facs = auth()->guard('api')->user()->notPaidFactures;
-            $count = count($notPaid_facs);
+            //$count = count($notPaid_facs);
+            $facturesList = [];
+            $j = 0;
+            foreach ($notPaid_facs as $item) {
+                $today = date('Y-m-d');
+                $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai_paiement . 'days')); //delai paiment date
+                if ($today < $paidelay) { //if it still within the period of paiment
+                    $i = $j;
+                    $facturesList[$i] = $item;
+                    $j = $i + 1;
+                }
+            }
+            $count = count($facturesList);
             return response()->json([
                 'status' => 'success',
                 'count' => $count,
-                'factures' => $notPaid_facs,
+                'factures' => $facturesList,
             ]);
         } else {
             return response()->json([
