@@ -24,6 +24,13 @@ class FactureController extends Controller
             'factures' => $factures,
         ]);
     }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Mission $mission
+     * @return \Illuminate\Http\Response
+     */
     public function createFacture(Request $req, Mission $mission)
     {
         //return $mission->id;
@@ -110,6 +117,13 @@ class FactureController extends Controller
             ]);
         }
     }
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Mission $mission
+     * @return \Illuminate\Http\Response
+     */
+    //i think it's for testing and verifying invoice's info
     public function show(Mission $mission)
     {
         $facs = Facture::where('mission_id', $mission->id)->get();
@@ -286,6 +300,14 @@ class FactureController extends Controller
         }
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Mission $mission
+     * @return \Illuminate\Http\Response
+     */
+
     public function updateFacture(Request $request, Mission $mission)
     {
         $facture = $mission->facture;
@@ -369,12 +391,12 @@ class FactureController extends Controller
             'message' => 'unauthenticated'
         ]);
     }
-
+    //we get all the info we need in one call (we used it in the front for updateInvoice interface)
     public function showFacInfo(Mission $mission)
     {
         $agent = $mission->agent;
         if (auth()->guard('api')->check()) {
-            if (auth()->guard('api')->user()->id == $agent->supervisor) {
+            if (auth()->guard('api')->user()->id == $agent->supervisor) { //so we can get agent info with the mission and the invoice in one call
                 $missionData = $mission;
                 $client = $mission->client->nom . ' ' . $mission->client->prenom;
                 $factureData = $mission->facture;
