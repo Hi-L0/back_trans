@@ -161,9 +161,12 @@ class FactureController extends Controller
     //effectuer le paiment
     public function paidFacture(Facture $facture)
     {
+        //date when the invoice owner make this invoice as paid
+        $today = date('Y-m-d');
         if (auth()->guard('api')->check()) {
             if (auth()->guard('api')->user()->id == $facture->owner && $facture->isClosed == 1) {
                 $facture->isPaid = true;
+                $facture->date_paiement = $today;
                 $facture->save();
                 return response()->json([
                     'status' => 'success',
