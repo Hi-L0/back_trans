@@ -58,7 +58,7 @@ class CaController extends Controller
             foreach ($data_revNotPaid as $item) {
                 $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai . 'days'));
                 if ($today < $paidelay) { //i added this so that it checks if its in recovery state or it's just unpaid and still within the delay period
-                    $reveYearly_notpaid = auth()->guard('api')->user()->closedFactures()->where('isPaid', false)->whereYear('date', '=', $an)->sum('total_ttc');
+                    $reveYearly_notpaid = auth()->guard('api')->user()->closedFactures()->where('isPaid', false)->whereYear('date', '=', $an)->sum('total_ttc'); //unpaid revenue yearly
                     if ($revNotPaidPerMonth[$item->monthKey - 1] != 0) {
                         $revNotPaidPerMonth[$item->monthKey - 1] = $revNotPaidPerMonth[$item->monthKey - 1] + $item->sums;
                     } else {
