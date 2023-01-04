@@ -256,7 +256,7 @@ class FactureController extends Controller
 
     public function getRecouvrementFac()
     {
-        $count = 0;
+        //$count = 0;
         if (auth()->guard('api')->check()) {
             $facs = auth()->guard('api')->user()->notPaidFactures;
             // $count = count($facs);
@@ -286,69 +286,85 @@ class FactureController extends Controller
     public function updateFacture(Request $request, Mission $mission)
     {
         $facture = $mission->facture;
-        $validator = Validator::make($request->all(), [
-            'code_facture' => 'required',
-            'designation' => 'required',
-            'description' => 'required',
-            'date' => 'date',
-            'unite' => 'integer',
-            'quantite' => 'required',
-            'pu_ht' => 'required',
-            'pu_ttc' => 'required',
-            'remise' => 'float',
-            'total_ht' => 'required',
-            'total_ttc' => 'required',
-            'taxe' => 'string|required',
-            'net_payer_letters' => 'required|string',
-            'mode_reglement' => 'required',
-            'delai_paiement' => 'required',
-            'commantaire' => 'string',
-            'price_change' => 'float',
-            'taux_change' => 'float',
-            'delivery_note' => 'required',
-            'po_number' => 'required',
-            'invoiceNum' => 'required',
+        if (auth()->guard('api')->check()) {
+            if (auth()->guard('api')->user()->id == $facture->owner) {
+                $validator = Validator::make($request->all(), [
+                    'code_facture' => 'required',
+                    'designation' => 'required',
+                    'description' => 'required',
+                    'date' => 'date',
+                    'unite' => 'integer',
+                    'quantite' => 'required',
+                    'pu_ht' => 'required',
+                    'pu_ttc' => 'required',
+                    'remise' => 'float',
+                    'total_ht' => 'required',
+                    'total_ttc' => 'required',
+                    'taxe' => 'string|required',
+                    'net_payer_letters' => 'required|string',
+                    'mode_reglement' => 'required',
+                    'delai_paiement' => 'required',
+                    'commantaire' => 'string',
+                    'price_change' => 'float',
+                    'taux_change' => 'float',
+                    'delivery_note' => 'required',
+                    'po_number' => 'required',
+                    'invoiceNum' => 'required',
+                ]);
+                if ($validator->failed()) {
+                    return response()->json([
+                        'status' => false,
+                        'errors' => $validator->errors()
+                    ], 400);
+                }
+                if ($facture->isClosed == 0) {  //or false
+                    $facture->code_facture = $request->code_facture;
+                    $facture->designation = $request->designation;
+                    $facture->description = $request->description;
+                    $facture->date = $request->date;
+                    $facture->unite = $request->unite;
+                    $facture->quantite = $request->quantite;
+                    $facture->pu_ht = $request->pu_ht;
+                    $facture->pu_ttc = $request->pu_ttc;
+                    $facture->remise = $request->remise;
+                    $facture->total_ht = $request->total_ht;
+                    $facture->total_ttc = $request->total_ttc;
+                    $facture->taxe = $request->taxe;
+                    $facture->net_payer_letters = $request->net_payer_letters;
+                    $facture->mode_reglement = $request->mode_reglement;
+                    $facture->delai_paiement = $request->delai_paiement;
+                    $facture->commantaire = $request->commantaire;
+                    $facture->price_change = $request->price_change;
+                    $facture->taux_change = $request->taux_change;
+                    $facture->delivery_note = $request->delivery_note;
+                    $facture->po_number = $request->po_number;
+                    $facture->invoiceNum = $request->invoiceNum;
+
+                    $facture->save();
+                    //when invoice created    this attribut == that this mission has an invoice
+                    $mission->invoice = true;
+                    $mission->save();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'facture updated successfully',
+                    ]);
+                } else {
+                    return response()->json([
+                        'message' => "this facture is closed, you can't modify it",
+                    ]);
+                }
+            }
+            //in case someone is connected but does not own this invoice
+            return response()->json([
+                'status' => 'danger',
+                'message' => 'Unauthorized',
+            ]);
+        }
+        //in case no one is connected
+        return response()->json([
+            'status' => 'danger',
+            'message' => 'unauthenticated'
         ]);
-        if ($validator->failed()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 400);
-        }
-        if ($facture->isClosed == 0) {  //or false
-            $facture->code_facture = $request->code_facture;
-            $facture->designation = $request->designation;
-            $facture->description = $request->description;
-            $facture->date = $request->date;
-            $facture->unite = $request->unite;
-            $facture->quantite = $request->quantite;
-            $facture->pu_ht = $request->pu_ht;
-            $facture->pu_ttc = $request->pu_ttc;
-            $facture->remise = $request->remise;
-            $facture->total_ht = $request->total_ht;
-            $facture->total_ttc = $request->total_ttc;
-            $facture->taxe = $request->taxe;
-            $facture->net_payer_letters = $request->net_payer_letters;
-            $facture->mode_reglement = $request->mode_reglement;
-            $facture->delai_paiement = $request->delai_paiement;
-            $facture->commantaire = $request->commantaire;
-            $facture->price_change = $request->price_change;
-            $facture->taux_change = $request->taux_change;
-            $facture->delivery_note = $request->delivery_note;
-            $facture->po_number = $request->po_number;
-            $facture->invoiceNum = $request->invoiceNum;
-
-            $facture->save();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'facture updated successfully',
-            ]);
-        } else {
-            return response()->json([
-                'message' => "this facture is closed, you can't modify it",
-            ]);
-        }
     }
 
     public function showFacInfo(Mission $mission)
