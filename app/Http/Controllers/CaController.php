@@ -54,11 +54,13 @@ class CaController extends Controller
             $revNotPaidPerMonth = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             //today's date
             $today = date('Y-m-d');
-            $reveYearly_notpaid = 0;
+            //$reveYearly_notpaid = 0;
+            $sum_notpaid = 0;
             foreach ($data_revNotPaid as $item) {
                 $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai . 'days'));
                 if ($today < $paidelay) { //i added this so that it checks if its in recovery state or it's just unpaid and still within the delay period
-                    $reveYearly_notpaid = auth()->guard('api')->user()->closedFactures()->where('isPaid', false)->whereYear('date', '=', $an)->sum('total_ttc'); //unpaid revenue yearly
+                    //$reveYearly_notpaid = auth()->guard('api')->user()->closedFactures()->where('isPaid', false)->whereYear('date', '=', $an)->sum('total_ttc'); //unpaid revenue yearly
+                    $sum_notpaid = $sum_notpaid + $item->sums;
                     if ($revNotPaidPerMonth[$item->monthKey - 1] != 0) {
                         $revNotPaidPerMonth[$item->monthKey - 1] = $revNotPaidPerMonth[$item->monthKey - 1] + $item->sums;
                     } else {
@@ -84,7 +86,7 @@ class CaController extends Controller
             return response()->json([
                 'revenue' => $reveYearly,
                 'dataPerMonth' => $dataPerMonth,
-                'revNotPaid' => $reveYearly_notpaid,
+                'revNotPaid' => $sum_notpaid, //$reveYearly_notpaid,
                 'revNotPaidPerMonth' => $revNotPaidPerMonth,
                 'recouvrement' => $sumRecouvrement,
                 'recouvrementPerMonth' => $recouvrementPerMonth,
