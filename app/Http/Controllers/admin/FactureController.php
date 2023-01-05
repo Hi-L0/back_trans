@@ -98,6 +98,9 @@ class FactureController extends Controller
 
                     ]
                 );
+                //when invoice created    this attribut == that this mission has an invoice
+                $mission->invoice = true;
+                $mission->save();
                 return response()->json([
                     'status' => 'success',
                     'message' => 'facture created',
@@ -366,9 +369,7 @@ class FactureController extends Controller
                     $facture->invoiceNum = $request->invoiceNum;
 
                     $facture->save();
-                    //when invoice created    this attribut == that this mission has an invoice
-                    $mission->invoice = true;
-                    $mission->save();
+
                     return response()->json([
                         'status' => 'success',
                         'message' => 'facture updated successfully',
