@@ -90,7 +90,7 @@ class CaController extends Controller
                 'revNotPaidPerMonth' => $revNotPaidPerMonth,
                 'recouvrement' => $sumRecouvrement,
                 'recouvrementPerMonth' => $recouvrementPerMonth,
-                'data' => $data_revNotPaid
+                'data' => $data_revNotPaid,
             ]);
             // return response()->json([
             //     'data' => $data,
