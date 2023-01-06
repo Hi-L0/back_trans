@@ -113,50 +113,57 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        $val = Validator::make($request->all(), [
-            "code" => 'required',
-            "nom" => 'required',
-            "prenom" => 'required',
-            'societe' => 'required',
-            'cri' => 'required',
-            "email" => 'required',
-            'ville' => 'required',
-            'adresse' => 'required|string', //these column willbe added
+        if (auth()->guard('api')->check()) {
+            $val = Validator::make($request->all(), [
+                "code" => 'required',
+                "nom" => 'required',
+                "prenom" => 'required',
+                'societe' => 'required',
+                'cri' => 'required',
+                "email" => 'required',
+                'ville' => 'required',
+                'adresse' => 'required|string', //these column willbe added
 
-        ]);
+            ]);
 
-        if ($val->failed()) {
+            if ($val->failed()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $val->errors()
+                ], 400);
+            }
+            $password = bcrypt(strtolower($request->nom . $request->prenom)); //passwordformat
+
+            $client = new Client();
+            $client->code = strtoupper($request->code);
+            $client->nom = $request->nom;
+            $client->prenom = $request->prenom;
+            $client->societe = $request->societe;
+            $client->cri = $request->cri;
+            $client->email =  $request->email;
+            $client->ville = $request->ville;
+            $client->tva = $request->tva;
+            $client->adresse = $request->adresse;
+            $client->cp = $request->cp;
+            $client->pays = strtoupper($request->pays);
+            $client->password = $password;
+            $client->save();
+
+            $client->users()->attach(auth()->guard('api')->user()->id);
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'client has been created successfully',
+                    'client' => $client,
+                ]
+            );
+        } else {
             return response()->json([
-                'status' => false,
-                'errors' => $val->errors()
-            ], 400);
+                'status' => 'danger',
+                'message' => 'Unauthenticated'
+            ]);
         }
-        $password = bcrypt(strtolower($request->nom . $request->prenom)); //passwordformat
-
-        $client = new Client();
-        $client->code = strtoupper($request->code);
-        $client->nom = $request->nom;
-        $client->prenom = $request->prenom;
-        $client->societe = $request->societe;
-        $client->cri = $request->cri;
-        $client->email =  $request->email;
-        $client->ville = $request->ville;
-        $client->tva = $request->tva;
-        $client->adresse = $request->adresse;
-        $client->cp = $request->cp;
-        $client->pays = strtoupper($request->pays);
-        $client->password = $password;
-        $client->save();
-
-        $client->users()->attach(auth()->guard('api')->user()->id);
-
-        return response()->json(
-            [
-                'status' => 'success',
-                'message' => 'client has been created successfully',
-                'client' => $client,
-            ]
-        );
     }
 
     /**
@@ -234,6 +241,7 @@ class ClientController extends Controller
                 'message' => $val->errors(),
             ]);
         }
+        //for clients updating its info but we don't need this cuz i already made profileController (to make one single api call and it works for every profile no matter what its occupation is ) check it out
         if (auth()->guard('client')->id() == $client->id) {
             $client->nom = $request->nom;
             $client->prenom = $request->prenom;
@@ -252,6 +260,8 @@ class ClientController extends Controller
                 'client' => $client,
             ]);
         }
+
+        //this is so that admins can modify their clients' info
         if (auth()->guard('api')->check()) {
             $clients = Client::wherehas('users', function ($query) {
                 $query->where('user_id', auth()->guard('api')->user()->id);
@@ -294,6 +304,7 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
+        //this is just for admins
         if (auth()->guard('api')->check()) {
             $client->delete();
             return response()->json([
