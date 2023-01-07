@@ -252,7 +252,7 @@ class FactureController extends Controller
             foreach ($notPaid_facs as $item) {
                 $today = date('Y-m-d');
                 $paidelay = strftime('%Y-%m-%d', strtotime($item->date . $item->delai_paiement . 'days')); //delai paiment date
-                if ($today < $paidelay) { //if it still within the period of paiment
+                if ($today <= $paidelay) { //if it still within the period of paiment
                     $i = $j;
                     $facturesList[$i] = $item;
                     $j = $i + 1;
