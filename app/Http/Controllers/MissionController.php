@@ -11,6 +11,7 @@ use Hamcrest\Core\HasToString;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Input\Input;
@@ -36,6 +37,54 @@ class MissionController extends Controller
         } elseif (auth()->guard('client')->check()) {
             $this->user = auth()->guard('client')->user();
         }
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @param int represents the year
+     * @return \Illuminate\Http\Response
+     */
+
+    public function missionsPerMonth($an)
+    {
+        if (auth()->guard('api')->check()) {
+            //this admins missions
+            $missions = auth()->guard('api')->user()->missions;
+            //these missions ids
+            $myMissionsIds = [];
+            $counter = 0;
+            foreach ($missions as $item) {
+                $i = $counter;
+                $myMissionsIds[$i] = $item->id;
+                $counter = $i + 1;
+            }
+
+            $data = Mission::select(
+                DB::raw('count(*) as missionsCount'),
+                DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+                DB::raw("DATE_FORMAT(created_at,'%Y') as year"),
+                DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+            )
+                ->whereIn('id', $myMissionsIds)
+                //->where('etat', 4) //for the completed missions
+                ->whereYear('created_at', '=', $an)
+                ->groupBy('months', 'year', 'monthKey')->get();
+            $missionsPerMonth = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            foreach ($data as $item) {
+                $missionsPerMonth[$item->monthKey - 1] = $item->missionsCount;
+            }
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'missionsPermonth' => $missionsPerMonth,
+                'myMissions' => $myMissionsIds,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'danger',
+            'message' => 'Unauthorized'
+        ]);
     }
     /**
      * Display a listing of the resource.
