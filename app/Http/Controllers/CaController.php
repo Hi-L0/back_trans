@@ -84,11 +84,11 @@ class CaController extends Controller
                 }
             }
             return response()->json([
-                'revenue' => $reveYearly,
+                'revenue' => number_format($reveYearly, 2, '.', ''),
                 'dataPerMonth' => $dataPerMonth,
-                'revNotPaid' => $sum_notpaid, //$reveYearly_notpaid,
+                'revNotPaid' => number_format($sum_notpaid, 2, '.', ''), //$reveYearly_notpaid,
                 'revNotPaidPerMonth' => $revNotPaidPerMonth,
-                'recouvrement' => $sumRecouvrement,
+                'recouvrement' => number_format($sumRecouvrement, 2, '.', ''),
                 'recouvrementPerMonth' => $recouvrementPerMonth,
                 'data' => $data_revNotPaid,
             ]);
