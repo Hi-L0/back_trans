@@ -50,6 +50,7 @@ class MissionController extends Controller
         if (auth()->guard('api')->check()) {
             //this admins missions
             $missions = auth()->guard('api')->user()->missions;
+            $count = 0;
             //these missions ids
             $myMissionsIds = [];
             $counter = 0;
@@ -58,7 +59,6 @@ class MissionController extends Controller
                 $myMissionsIds[$i] = $item->id;
                 $counter = $i + 1;
             }
-
             $data = Mission::select(
                 DB::raw('count(*) as missionsCount'),
                 DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
@@ -72,9 +72,11 @@ class MissionController extends Controller
             $missionsPerMonth = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             foreach ($data as $item) {
                 $missionsPerMonth[$item->monthKey - 1] = $item->missionsCount;
+                $count = $count + $item->missionsCount;
             }
             return response()->json([
                 'status' => 'success',
+                'count' => $count,
                 'data' => $data,
                 'missionsPermonth' => $missionsPerMonth,
                 'myMissions' => $myMissionsIds,
@@ -560,8 +562,14 @@ class MissionController extends Controller
         } else {
             $mission->etat = $steps[0];
         }
-
         $mission->save();
+        if ($mission->etat != 4 && $mission->invoice == true) {
+            $thisFac = $mission->facture;
+            $thisFac->delete();
+            $mission->invoice = false;
+            $mission->isModifiable = true;
+            $mission->save();
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'mission updated successfully',
