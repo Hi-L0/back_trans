@@ -91,6 +91,7 @@ Route::group([
     Route::get('completed-missions', 'MissionController@getFinishedMission');
     Route::get('deleted-missions', 'MissionController@missionTrashed'); //its not always the case  we can create custom functions in the controller but we want them to be with a specific method
     Route::get('mission-inprog', 'MissionController@missionsInProg');
+    Route::get('mission-stats/{id}', 'MissionController@missionsPerMonth');
 });
 
 //Clients Route
