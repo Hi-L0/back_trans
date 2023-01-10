@@ -529,54 +529,62 @@ class MissionController extends Controller
                 'errors' => $val->errors()
             ], 400);
         }
-        $mission->matricule = $request->matricule;
-        $mission->nb_colis = $request->nb_colis;
-        $mission->poids = $request->poids;
-        $mission->num_cmra = $request->num_cmra;
-        $mission->destinataire = $request->destinataire;
-        $mission->bon_scaner = $request->bon_scaner;
-        $mission->num_mrn = $request->num_mrn;
-        $mission->navire = $request->navire;
-        $mission->bl_maritime = $request->bl_maritime;
-        $mission->date_embarq = $request->date_embarq;
-        $mission->matricule_european = $request->matricule_european;
-        $ref_photo = $mission->matricule;
-        if ($request->hasFile('photo_dechargement')) {
-            $pic = $request->file('photo_dechargement');
-            $photoName = $ref_photo . '_' . date('y_m_d') . $pic->getClientOriginalExtension();
-            $pic->move('uploads/missiondecharge/', $photoName);
-            $mission->photo_dechargement = 'uploads/missiondecharge/' . $photoName;
-        }
-
-
-        $steps = [1, 2, 3, 4];  //steps for the missions
-
-        if (!is_null($mission->bon_scaner) && !is_null($mission->num_mrn) && !is_null($mission->navire)) {     //so that we can track mission's steps
-            $mission->etat = $steps[1];
-            if (!is_null($mission->bl_maritime) && !is_null($mission->date_embarq)) {
-                $mission->etat = $steps[2];
-                if (!is_null($mission->matricule_european)) {
-                    $mission->etat = $steps[3];
-                }
+        if ($mission->isModifiable == true) {
+            $mission->matricule = $request->matricule;
+            $mission->nb_colis = $request->nb_colis;
+            $mission->poids = $request->poids;
+            $mission->num_cmra = $request->num_cmra;
+            $mission->destinataire = $request->destinataire;
+            $mission->bon_scaner = $request->bon_scaner;
+            $mission->num_mrn = $request->num_mrn;
+            $mission->navire = $request->navire;
+            $mission->bl_maritime = $request->bl_maritime;
+            $mission->date_embarq = $request->date_embarq;
+            $mission->matricule_european = $request->matricule_european;
+            $ref_photo = $mission->matricule;
+            if ($request->hasFile('photo_dechargement')) {
+                $pic = $request->file('photo_dechargement');
+                $photoName = $ref_photo . '_' . date('y_m_d') . $pic->getClientOriginalExtension();
+                $pic->move('uploads/missiondecharge/', $photoName);
+                $mission->photo_dechargement = 'uploads/missiondecharge/' . $photoName;
             }
-        } else {
-            $mission->etat = $steps[0];
+
+
+            $steps = [1, 2, 3, 4];  //steps for the missions
+
+            if (!is_null($mission->bon_scaner) && !is_null($mission->num_mrn) && !is_null($mission->navire)) {     //so that we can track mission's steps
+                $mission->etat = $steps[1];
+                if (!is_null($mission->bl_maritime) && !is_null($mission->date_embarq)) {
+                    $mission->etat = $steps[2];
+                    if (!is_null($mission->matricule_european)) {
+                        $mission->etat = $steps[3];
+                    }
+                }
+            } else {
+                $mission->etat = $steps[0];
+            }
+            $mission->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'mission updated successfully',
+                'step' => $mission->etat,
+                'mission' => $mission,
+
+            ]);
         }
-        $mission->save();
         if ($mission->etat != 4 && $mission->invoice == true) {
             $thisFac = $mission->facture;
             $thisFac->delete();
             $mission->invoice = false;
             $mission->isModifiable = true;
             $mission->save();
-        }
-        return response()->json([
-            'status' => 'success',
-            'message' => 'mission updated successfully',
-            'step' => $mission->etat,
-            'mission' => $mission,
+            return response()->json([
+                'status' => 'warning',
+                'message' => '',
+                'mission' => $mission,
 
-        ]);
+            ]);
+        }
     }
 
     public function missionTrashed()
