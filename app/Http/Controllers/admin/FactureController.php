@@ -8,6 +8,7 @@ use App\Models\Mission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 
 class FactureController extends Controller
@@ -457,6 +458,10 @@ class FactureController extends Controller
     {
         if (auth()->guard('api')->user()->id == $facture->owner) {
             $mission = Mission::where('id', $facture->mission_id)->get();
+            //this will delete any invoice file that has this invoice info
+            if (File::exists(public_path('factures/' . $facture->code_facture . '.pdf'))) {
+                File::delete(public_path('factures/' . $facture->code_facture . '.pdf'));
+            }
             $facture->delete();
             $mission->invoice = false;
             $mission->isModifiable = true; //mission will be modified if it was isModified==false
