@@ -457,7 +457,8 @@ class FactureController extends Controller
     public function destroy(Facture $facture)
     {
         if (auth()->guard('api')->user()->id == $facture->owner) {
-            $mission = Mission::where('id', $facture->mission_id)->get();
+            //$mission = Mission::where('id', $facture->mission_id)->first();
+            $mission = Mission::find($facture->mission_id);
             //this will delete any invoice file that has this invoice info
             if (File::exists(public_path('factures/' . $facture->code_facture . '.pdf'))) {
                 File::delete(public_path('factures/' . $facture->code_facture . '.pdf'));
@@ -468,6 +469,7 @@ class FactureController extends Controller
             $mission->save();
             return response()->json([
                 'status' => 'success',
+                'mission' => $mission,
                 'message' => 'facture has been deleted successfully',
             ]);
         }
