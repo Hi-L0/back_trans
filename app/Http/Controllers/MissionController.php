@@ -571,7 +571,13 @@ class MissionController extends Controller
                 'mission' => $mission,
 
             ]);
+        } else {
+            return response()->json([
+                'status' => 'danger',
+                'message' => 'you cannot modify this mission',
+            ]);
         }
+        //we wont need this
         if ($mission->etat != 4 && $mission->invoice == true) {
             $thisFac = $mission->facture;
             $thisFac->delete();
@@ -603,22 +609,23 @@ class MissionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Soft delete the specified resource from storage.
      *
      * @param  \App\Models\Mission  $mission
      * @return \Illuminate\Http\Response
      */
     public function destroy(Mission $mission)
     {
+
+        /* if we want to delete mission images */
+        // if (File::exists(public_path($mission->photo_chargement))) {
+        //     File::delete(public_path($mission->photo_chargement));
+        // } //actually we wont delete mission files cuz we have the soft delete enabled in missions table
         if ($mission->delete()) {
-            /* if we want to delete mission images */
-            // if (File::exists(public_path($mission->photo_chargement))) {
-            //     File::delete(public_path('upload/test.png'));
-            // }
             return response()->json([
                 'status' => true,
                 'message' => "mission deleted successfully",
-                'mission' => $mission,
+                //'mission' => $mission,
             ]);
         } else {
             return response()->json([
