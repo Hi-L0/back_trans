@@ -68,6 +68,16 @@ Route::group([
     Route::post('client', 'AuthClientController@me');
 });
 
+//change password
+Route::group([
+    //'middleware' => 'auth:api',
+    'prefix' => 'auth',
+    'namespace' => 'App\Http\Controllers\Auth', //like the one above
+
+], function () {
+    Route::post('change-password', 'ChangePasswordController@changePassword');
+});
+
 //Agents Routes
 
 Route::group([
