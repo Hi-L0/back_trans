@@ -87,9 +87,17 @@ Route::group([
 ], function ($router) {
     Route::resource('agent', 'AgentController'); //its not always the case  we can create custom functions in the controller but we want them to be with a specific method
     Route::get('commis', 'AgentController@getAllCommis');
-    route::get('transporteur', 'AgentController@getAllTransporteur');
+    Route::get('transporteur', 'AgentController@getAllTransporteur');
 });
+//resetting password for agents (admin task)
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'agent',
+    'namespace' => 'App\Http\Controllers', //like the one above
 
+], function ($router) {
+    Route::post('reset-password/{agent}', 'AgentController@resetPassword');
+});
 //Missions Routes
 
 Route::group([
@@ -117,6 +125,15 @@ Route::group([
     Route::get('mesFactures', 'ClientController@myInvoices');
 });
 
+//resetting password for clients (admin task)
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'client',
+    'namespace' => 'App\Http\Controllers', //like the one above
+
+], function ($router) {
+    Route::post('reset-password/{client}', 'ClientController@resetPassword');
+});
 //Roles Routes
 
 Route::group([
