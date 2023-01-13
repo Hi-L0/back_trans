@@ -23,9 +23,7 @@ class MissionController extends Controller
 {
 
     public function __construct()
-    {;
-        //
-
+    {
         // $this->user = auth()->guard('api')->user();
         // $this->agent = auth()->guard('agent-api');
         if (auth()->guard('api')->check()) {
@@ -596,7 +594,8 @@ class MissionController extends Controller
     public function missionTrashed()
     {
         $user = auth()->guard('api')->user(); //Auth::user
-        $missions = Mission::onlyTrashed()->where('user_id', $user->id)->get();  //it shows only the post of the user
+        $missions = $user->trashedMissions;
+        // $missions = Mission::onlyTrashed()->where('user_id', $user->id)->get();  //it shows only the post of the user
         //or we can write with(.....)
 
         //$missions = Mission::onlyTrashed()->where('user_id', Auth::id())->get();  //it shows only the post of the user
@@ -633,6 +632,41 @@ class MissionController extends Controller
                 'message' => "the mission could not be deleted",
             ]);
         }
+    }
+    /**
+     * Restore the specified resource from storage.
+     *
+     * @param  \App\Models\Mission  $mission
+     * @return \Illuminate\Http\Response
+     */
+    // public function restoreMission(Mission $mission)
+    // {
+    //     $mission->restore();
+    // }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Mission  $mission
+     * @return \Illuminate\Http\Response
+     */
+    public function hardDelete(Mission $mission)
+    {
+        //delete mission files
+        if (auth()->guard('api')->check()) {
+            if (File::exists(public_path($mission->photo_chargement))) {
+                File::delete(public_path($mission->photo_chargement));
+            }
+            //delete from trash
+            $mission->forceDelete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'mission deleted successfully',
+            ]);
+        }
+        return response()->json([
+            'status' => 'danger',
+            'message' => 'Unauthorized',
+        ]);
     }
     // protected function guard()
     // {
