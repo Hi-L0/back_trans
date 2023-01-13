@@ -295,6 +295,36 @@ class ClientController extends Controller
             ]);
         }
     }
+    /**
+     * Modify the specified resource from storage.
+     *
+     * @param  \App\Models\Agent  $agent
+     * @return \Illuminate\Http\Response
+     */
+    public function resetPassword(Client $client)
+    {
+        if (auth()->guard('api')->check()) {
+            $clients = Client::wherehas('users', function ($query) {
+                $query->where('user_id', auth()->guard('api')->user()->id);
+                //$query->distinct()->whereIn('id', $request->users);
+            })->get();
+            foreach ($clients as $item) {
+                if ($item->id == $client->id) {
+                    $newPassword = bcrypt(strtolower($client->nom . $client->prenom));
+                    $client->password = $newPassword;
+                    $client->save();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'password has been reset',
+                    ]);
+                }
+            }
+        }
+        return response()->json([
+            'status' => 'failed',
+            'message' => 'Unauthorized',
+        ]);
+    }
 
     /**
      * Remove the specified resource from storage.
