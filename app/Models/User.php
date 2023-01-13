@@ -93,7 +93,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->missions()->where('etat', 4)->orderBy('created_at', 'DESC');
     }
-
+    public function trashedMissions()
+    {
+        return $this->missions()->onlyTrashed();
+    }
     public function factures()
     {
         return $this->hasMany('App\Models\Facture', 'owner', 'id');
