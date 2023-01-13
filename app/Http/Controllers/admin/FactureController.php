@@ -469,7 +469,6 @@ class FactureController extends Controller
             $mission->save();
             return response()->json([
                 'status' => 'success',
-                'mission' => $mission,
                 'message' => 'facture has been deleted successfully',
             ]);
         }
