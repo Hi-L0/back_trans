@@ -266,12 +266,36 @@ class AgentController extends Controller
             ]);
         } else {
             return response()->json([
-                'status' => 'failure',
+                'status' => 'failed',
                 'message' => 'action not authorized',
             ]);
         }
     }
 
+    /**
+     * Modify the specified resource from storage.
+     *
+     * @param  \App\Models\Agent  $agent
+     * @return \Illuminate\Http\Response
+     */
+    public function resetPassword(Agent $agent)
+    {
+        if (auth()->guard('api')->check()) {
+            if (auth()->guard('api')->id() == $agent->supervisor) {
+                $reset_password = bcrypt(strtolower($agent->nom . $agent->prenom));
+                $agent->password = $reset_password;
+                $agent->save();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'password has been reset',
+                ]);
+            }
+        }
+        return response()->json([
+            'status' => 'danger',
+            'message' => 'Unauthorized',
+        ]);
+    }
     /**
      * Remove the specified resource from storage.
      *
