@@ -27,7 +27,7 @@ class ChangePasswordController extends Controller
     {
         $validatedData = Validator::make($request->all(), [
             'currentPassword' => 'required',
-            'newPassword' => 'required|string|min:8|confirmed',
+            'newPassword' => 'required|string|min:6|confirmed',
         ]);
         if ($validatedData->fails()) {
             return response()->json([
