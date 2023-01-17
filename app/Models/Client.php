@@ -25,6 +25,7 @@ class Client extends Authenticatable implements JWTSubject
         'pays',
         'tva',
         'password',
+        'gsm',
     ];
     /**
      * The attributes that should be hidden for serialization.
