@@ -119,7 +119,7 @@ class ClientController extends Controller
                 "nom" => 'required',
                 "prenom" => 'required',
                 'societe' => 'required',
-                'cri' => 'required',
+                // 'cri' => 'required',
                 "email" => 'required',
                 'ville' => 'required',
                 'adresse' => 'required|string', //these column willbe added
@@ -144,6 +144,7 @@ class ClientController extends Controller
             $client->ville = $request->ville;
             $client->tva = $request->tva;
             $client->adresse = $request->adresse;
+            $client->gsm = $request->gsm;
             $client->cp = $request->cp;
             $client->pays = strtoupper($request->pays);
             $client->password = $password;
@@ -233,6 +234,7 @@ class ClientController extends Controller
             'ville' => 'string',
             'cp' => 'integer',
             'pays' => 'string',
+            'gsm' => 'string',
             //'password'=>'required|confirmed|min:6'      //i will see if i should implement it in the authController
         ]);
         if ($val->failed()) {
@@ -247,6 +249,7 @@ class ClientController extends Controller
             $client->prenom = $request->prenom;
             $client->email = $request->email;
             $client->adresse = $request->adresse;
+            $client->gsm = $request->gsm;
             $client->ville = $request->ville;
             $client->cp = $request->cp;
             $client->pays = strtoupper($request->pays);
@@ -274,6 +277,7 @@ class ClientController extends Controller
                     $client->prenom = $request->prenom;
                     $client->email = $request->email;
                     $client->adresse = $request->adresse;
+                    $client->gsm = $request->gsm;
                     $client->ville = $request->ville;
                     $client->cp = $request->cp;
                     $client->pays = strtoupper($request->pays);
