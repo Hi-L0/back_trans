@@ -554,7 +554,7 @@ class MissionController extends Controller
                 $mission->etat = $steps[1];
                 if (!is_null($mission->bl_maritime) && !is_null($mission->date_embarq)) {
                     $mission->etat = $steps[2];
-                    if (!is_null($mission->matricule_european)) {
+                    if (!is_null($mission->matricule_european) && !is_null($mission->photo_dechargement)) {
                         $mission->etat = $steps[3];
                     }
                 }
@@ -590,7 +590,7 @@ class MissionController extends Controller
             ]);
         }
     }
-
+    //this function is for sending photo_dechargement (file) (update function)
     public function FileSending(Request $request, Mission $mission)
     {
         if (auth()->guard('api')->check() || auth()->guard('agent-api')->check()) {
@@ -652,13 +652,13 @@ class MissionController extends Controller
         // } //actually we wont delete mission files cuz we have the soft delete enabled in missions table
         if ($mission->delete()) {
             return response()->json([
-                'status' => true,
+                'status' => 'success',
                 'message' => "mission deleted successfully",
                 //'mission' => $mission,
             ]);
         } else {
             return response()->json([
-                'status' => false,
+                'status' => 'danger',
                 'message' => "the mission could not be deleted",
             ]);
         }
@@ -669,18 +669,32 @@ class MissionController extends Controller
      * @param  \App\Models\Mission  $mission
      * @return \Illuminate\Http\Response
      */
-    // public function restoreMission(Mission $mission)
-    // {
-    //     $mission->restore();
-    // }
+    public function restoreMission($id)
+    {
+        $mission = Mission::withTrashed()->where('id', $id)->first();
+        if ($mission->restore()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => "mission restored successfully",
+                //'mission' => $mission,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'warning',
+                'message' => "the mission could not be restored",
+            ]);
+        };
+    }
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Mission  $mission
      * @return \Illuminate\Http\Response
      */
-    public function hardDelete(Mission $mission)
+    public function hardDelete($id)
     {
+        //getting the deleted mission first
+        $mission = Mission::withTrashed()->where('id', $id)->first();
         //delete mission files
         if (auth()->guard('api')->check()) {
             if (File::exists(public_path($mission->photo_chargement))) {
@@ -693,7 +707,7 @@ class MissionController extends Controller
             $mission->forceDelete();
             return response()->json([
                 'status' => 'success',
-                'message' => 'mission deleted successfully',
+                'message' => 'mission removed from trash successfully',
             ]);
         }
         return response()->json([
