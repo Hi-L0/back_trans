@@ -542,7 +542,7 @@ class MissionController extends Controller
             $ref_photo = $mission->matricule;
             if ($request->hasFile('photo_dechargement')) {
                 $pic = $request->file('photo_dechargement');
-                $photoName = $ref_photo . '_' . date('y_m_d') . $pic->getClientOriginalExtension();
+                $photoName = $ref_photo . '_' . strftime('%y_%m_%d', strtotime($mission->created_at)) . '.' . $pic->getClientOriginalExtension();
                 $pic->move('uploads/missiondecharge/', $photoName);
                 $mission->photo_dechargement = 'uploads/missiondecharge/' . $photoName;
             }
@@ -590,6 +590,36 @@ class MissionController extends Controller
             ]);
         }
     }
+
+    public function FileSending(Request $request, Mission $mission)
+    {
+        if (auth()->guard('api')->check() || auth()->guard('agent-api')->check()) {
+            if ($mission->isModifiable == true) {
+                $ref_photo = $mission->matricule;
+                if ($request->hasFile('photo_dechargement')) {
+                    $pic = $request->file('photo_dechargement');
+                    $photoName = $ref_photo . '_' . strftime('%y_%m_%d', strtotime($mission->created_at)) . '.' . $pic->getClientOriginalExtension();
+                    $pic->move('uploads/missiondecharge/', $photoName);
+                    $mission->photo_dechargement = 'uploads/missiondecharge/' . $photoName;
+                    $mission->etat = 4;
+                }
+                $mission->save();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'mission updated successfully',
+                    'step' => $mission->etat,
+                    'mission' => $mission,
+
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'danger',
+                'message' => 'Unauthorized',
+            ]);
+        }
+    }
+
 
     public function missionTrashed()
     {
