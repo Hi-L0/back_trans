@@ -686,6 +686,9 @@ class MissionController extends Controller
             if (File::exists(public_path($mission->photo_chargement))) {
                 File::delete(public_path($mission->photo_chargement));
             }
+            if (File::exists(public_path($mission->photo_dechargement))) {
+                File::delete(public_path($mission->photo_dechargement));
+            }
             //delete from trash
             $mission->forceDelete();
             return response()->json([
