@@ -562,8 +562,8 @@ class MissionController extends Controller
             'matricule' => 'string',
             'nb_colis' => 'string',
             'poids' => 'float',
-            'num_cmra' => 'integer',
-            //'num_declaration_transit' => 'required',
+            'num_cmra' => 'string',
+            'num_declaration_transit' => 'string',
             'destinataire' => 'string',
             // 'commis' => 'required',
             // 'photo_chargement' => 'required|image',
@@ -588,7 +588,7 @@ class MissionController extends Controller
             $mission->nb_colis = $request->nb_colis;
             $mission->poids = $request->poids;
             $mission->num_cmra = $request->num_cmra;
-            //$mission->num_declaration_transit=$request->num_declaration_transit;
+            $mission->num_declaration_transit = $request->num_declaration_transit;
             $mission->destinataire = $request->destinataire;
             $mission->bon_scaner = $request->bon_scaner;
             $mission->num_mrn = $request->num_mrn;
