@@ -283,84 +283,140 @@ class MissionController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $this->user; //auth()->guard('api')->user(); or auth()->guard('agent-api')->user();
-        $val = Validator::make($request->all(), [
-            'client_id' => 'required|integer',
-            'matricule' => 'required|string',
-            'nb_colis' => 'required',
-            'poids' => 'required',
-            'num_cmra' => 'required',
-            'num_declaration_transit' => 'required',
-            'destinataire' => 'required|string',
-            'commis' => 'required',
-            'photo_chargement' => 'image',
-            'bon_scaner' => 'string',
-            'num_mrn' => 'string',
-            'bl_maritime' => 'string',
-            'matricule_european' => 'string',
+        //if admin is connected
+        if (auth()->guard('api')->check()) {
+            $user = $this->user; //auth()->guard('api')->user(); or auth()->guard('agent-api')->user();
+            $val = Validator::make($request->all(), [
+                'user_id' => 'required|integer',
+                'client_id' => 'required|integer',
+                'matricule' => 'required|string',
+                'nb_colis' => 'required',
+                'poids' => 'required',
+                'num_cmra' => 'required',
+                'num_declaration_transit' => 'required',
+                'destinataire' => 'required|string',
+                'commis' => 'required',
+                'photo_chargement' => 'image',
+                'bon_scaner' => 'string',
+                'num_mrn' => 'string',
+                'bl_maritime' => 'string',
+                'matricule_european' => 'string',
 
-        ]);
+            ]);
 
-        $ref_photo = $request->matricule;
-        if ($request->hasFile('photo_chargement')) {
-            $pic = $request->file('photo_chargement');
-            $photoName = $ref_photo . '_' . date('y_m_d') . '.' . $pic->getClientOriginalExtension();
-            $pic->move('uploads/missioncharge/', $photoName);
-        }
-        // if ($request->has('photo_chargement')) {
-        //     $image = $request->file('photo_chargement');
-        //     //foreach ($request->file('photo_chargement') as $image)
-        //     $filename = time() . $ref_photo . '.' . $image->getClientOriginalExtension();
-        //     $image->move('uploads/', $filename);
-        //     $mission = Mission::create([
-        //         'user_id' => $user->id,
-        //         'client_id' => $request->client_id,
-        //         'matricule' => $request->matricule,
-        //         'nb_colis' => $request->nb_colis,
-        //         'poids' => $request->poids,
-        //         'num_cmra' => $request->num_cmra,
-        //         'num_declaration_transit' => $request->num_declaration_transit,
-        //         'destinataire' => $request->destination,
-        //         'commis' => $request->commis,
-        //         'photo_chargement' => 'uploads/' . $filename,
+            $ref_photo = $request->matricule;
+            if ($request->hasFile('photo_chargement')) {
+                $pic = $request->file('photo_chargement');
+                $photoName = $ref_photo . '_' . date('y_m_d') . '.' . $pic->getClientOriginalExtension();
+                $pic->move('uploads/missioncharge/', $photoName);
+            }
+            if ($val->failed()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $val->errors()
+                ], 400);
+            }
+            $mission = Mission::create([
+                'user_id' => $request->user_id,
+                'client_id' => $request->client_id,
+                'matricule' => $request->matricule,
+                'nb_colis' => $request->nb_colis,
+                'poids' => $request->poids,
+                'num_cmra' => $request->num_cmra,
+                'num_declaration_transit' => $request->num_declaration_transit,
+                'destinataire' => $request->destinataire,
+                'commis' => $request->commis,
+                'photo_chargement' => 'uploads/missioncharge/' . $photoName,
+            ]);
+            //$mission->save();
 
-        //     ]);
-        // }
 
-        if ($val->failed()) {
             return response()->json([
-                'status' => false,
-                'errors' => $val->errors()
-            ], 400);
+                'status' => true,
+                'message' => 'mission created!',
+                'mission' => $mission,
+                // 'step' => "initialisation", //as a value and not in the data base
+            ]);
+        } elseif (auth()->guard('agent-api')->check()) { //if transporteur is connected
+            $user = $this->user;
+            $val = Validator::make($request->all(), [
+                'client_id' => 'required|integer',
+                'matricule' => 'required|string',
+                'nb_colis' => 'required',
+                'poids' => 'required',
+                'num_cmra' => 'required',
+                'num_declaration_transit' => 'required',
+                'destinataire' => 'required|string',
+                'commis' => 'required',
+                'photo_chargement' => 'image',
+                'bon_scaner' => 'string',
+                'num_mrn' => 'string',
+                'bl_maritime' => 'string',
+                'matricule_european' => 'string',
+
+            ]);
+
+            $ref_photo = $request->matricule;
+            if ($request->hasFile('photo_chargement')) {
+                $pic = $request->file('photo_chargement');
+                $photoName = $ref_photo . '_' . date('y_m_d') . '.' . $pic->getClientOriginalExtension();
+                $pic->move('uploads/missioncharge/', $photoName);
+            }
+            // if ($request->has('photo_chargement')) {
+            //     $image = $request->file('photo_chargement');
+            //     //foreach ($request->file('photo_chargement') as $image)
+            //     $filename = time() . $ref_photo . '.' . $image->getClientOriginalExtension();
+            //     $image->move('uploads/', $filename);
+            //     $mission = Mission::create([
+            //         'user_id' => $user->id,
+            //         'client_id' => $request->client_id,
+            //         'matricule' => $request->matricule,
+            //         'nb_colis' => $request->nb_colis,
+            //         'poids' => $request->poids,
+            //         'num_cmra' => $request->num_cmra,
+            //         'num_declaration_transit' => $request->num_declaration_transit,
+            //         'destinataire' => $request->destination,
+            //         'commis' => $request->commis,
+            //         'photo_chargement' => 'uploads/' . $filename,
+
+            //     ]);
+            // }
+
+            if ($val->failed()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $val->errors()
+                ], 400);
+            }
+            // if (auth()->guard('api')->check()) {
+            //     $user = auth()->guard('api')->user();
+            // } elseif (auth()->guard('agent-api')->check()) {
+            //     $user = auth()->guard('agent-api')->user();
+            // }
+
+            //$user = User::find(1); //look above
+            $mission = Mission::create([
+                'user_id' => $user->id,
+                'client_id' => $request->client_id,
+                'matricule' => $request->matricule,
+                'nb_colis' => $request->nb_colis,
+                'poids' => $request->poids,
+                'num_cmra' => $request->num_cmra,
+                'num_declaration_transit' => $request->num_declaration_transit,
+                'destinataire' => $request->destinataire,
+                'commis' => $request->commis,
+                'photo_chargement' => 'uploads/missioncharge/' . $photoName,
+            ]);
+            //$mission->save();
+
+
+            return response()->json([
+                'status' => true,
+                'message' => 'mission created!',
+                'mission' => $mission,
+                // 'step' => "initialisation", //as a value and not in the data base
+            ]);
         }
-        // if (auth()->guard('api')->check()) {
-        //     $user = auth()->guard('api')->user();
-        // } elseif (auth()->guard('agent-api')->check()) {
-        //     $user = auth()->guard('agent-api')->user();
-        // }
-
-        //$user = User::find(1); //look above
-        $mission = Mission::create([
-            'user_id' => $user->id,
-            'client_id' => $request->client_id,
-            'matricule' => $request->matricule,
-            'nb_colis' => $request->nb_colis,
-            'poids' => $request->poids,
-            'num_cmra' => $request->num_cmra,
-            'num_declaration_transit' => $request->num_declaration_transit,
-            'destinataire' => $request->destinataire,
-            'commis' => $request->commis,
-            'photo_chargement' => 'uploads/missioncharge/' . $photoName,
-        ]);
-        //$mission->save();
-
-
-        return response()->json([
-            'status' => true,
-            'message' => 'mission created!',
-            'mission' => $mission,
-            // 'step' => "initialisation", //as a value and not in the data base
-        ]);
     }
 
     /**
@@ -507,7 +563,7 @@ class MissionController extends Controller
             'nb_colis' => 'string',
             'poids' => 'float',
             'num_cmra' => 'integer',
-            // 'num_declaration_transit' => 'required',
+            //'num_declaration_transit' => 'required',
             'destinataire' => 'string',
             // 'commis' => 'required',
             // 'photo_chargement' => 'required|image',
@@ -532,6 +588,7 @@ class MissionController extends Controller
             $mission->nb_colis = $request->nb_colis;
             $mission->poids = $request->poids;
             $mission->num_cmra = $request->num_cmra;
+            //$mission->num_declaration_transit=$request->num_declaration_transit;
             $mission->destinataire = $request->destinataire;
             $mission->bon_scaner = $request->bon_scaner;
             $mission->num_mrn = $request->num_mrn;
@@ -546,21 +603,23 @@ class MissionController extends Controller
                 $pic->move('uploads/missiondecharge/', $photoName);
                 $mission->photo_dechargement = 'uploads/missiondecharge/' . $photoName;
             }
+            //the user will dectate which state the mission's at
+            $mission->etat = $request->etat;
 
 
-            $steps = [1, 2, 3, 4];  //steps for the missions
+            //$steps = [1, 2, 3, 4];  //steps for the missions
 
-            if (!is_null($mission->bon_scaner) && !is_null($mission->num_mrn) && !is_null($mission->navire)) {     //so that we can track mission's steps
-                $mission->etat = $steps[1];
-                if (!is_null($mission->bl_maritime) && !is_null($mission->date_embarq)) {
-                    $mission->etat = $steps[2];
-                    if (!is_null($mission->matricule_european) && !is_null($mission->photo_dechargement)) {
-                        $mission->etat = $steps[3];
-                    }
-                }
-            } else {
-                $mission->etat = $steps[0];
-            }
+            // if (!is_null($mission->bon_scaner) && !is_null($mission->num_mrn) && !is_null($mission->navire)) {     //so that we can track mission's steps
+            //     $mission->etat = $steps[1];
+            //     if (!is_null($mission->bl_maritime) && !is_null($mission->date_embarq)) {
+            //         $mission->etat = $steps[2];
+            //         if (!is_null($mission->matricule_european) && !is_null($mission->photo_dechargement)) {
+            //             $mission->etat = $steps[3];
+            //         }
+            //     }
+            // } else {
+            //     $mission->etat = $steps[0];
+            // }
             $mission->save();
             return response()->json([
                 'status' => 'success',
