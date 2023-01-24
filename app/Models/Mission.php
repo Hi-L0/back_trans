@@ -30,6 +30,7 @@ class Mission extends Model
         'photo_dechargement',
         'navire',
         'date_embarq',
+        'etat',
     ];
 
 
