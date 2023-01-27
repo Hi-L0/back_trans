@@ -688,17 +688,23 @@ class MissionController extends Controller
 
     public function missionTrashed()
     {
-        $user = auth()->guard('api')->user(); //Auth::user
-        $missions = $user->trashedMissions;
-        // $missions = Mission::onlyTrashed()->where('user_id', $user->id)->get();  //it shows only the post of the user
-        //or we can write with(.....)
+        if (auth()->guard('api')->check()) {
+            $user = auth()->guard('api')->user(); //Auth::user
+            // $missions = Mission::onlyTrashed()->where('user_id', $user->id)->get();  //it shows only the post of the user
+            //or we can write with(.....)
 
-        //$missions = Mission::onlyTrashed()->where('user_id', Auth::id())->get();  //it shows only the post of the user
-        //or we can write with(.....)
+            //$missions = Mission::onlyTrashed()->where('user_id', Auth::id())->get();  //it shows only the post of the user
+            //or we can write with(.....)
+            $missions = $user->trashedMissions;
 
+            return response()->json([
+                'status' => 'success',
+                'missions_deleted' => $missions,
+            ]);
+        }
         return response()->json([
-            'status' => 'success',
-            'missions_deleted' => $missions,
+            'status' => 'danger',
+            'message' => 'Unauthorized',
         ]);
     }
 
