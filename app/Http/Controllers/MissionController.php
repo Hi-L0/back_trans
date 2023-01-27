@@ -655,12 +655,18 @@ class MissionController extends Controller
         if (auth()->guard('api')->check() || auth()->guard('agent-api')->check()) {
             if ($mission->isModifiable == true) {
                 $ref_photo = $mission->matricule;
+                if ($request->hasFile('photo_chargement')) {
+                    $pic = $request->file('photo_chargement');
+                    $photoName = $ref_photo . '_' . strftime('%y_%m_%d', strtotime($mission->created_at)) . '.' . $pic->getClientOriginalExtension();
+                    $pic->move('uploads/missioncharge/', $photoName);
+                    $mission->photo_chargement = 'uploads/missioncharge/' . $photoName;
+                }
                 if ($request->hasFile('photo_dechargement')) {
                     $pic = $request->file('photo_dechargement');
                     $photoName = $ref_photo . '_' . strftime('%y_%m_%d', strtotime($mission->created_at)) . '.' . $pic->getClientOriginalExtension();
                     $pic->move('uploads/missiondecharge/', $photoName);
                     $mission->photo_dechargement = 'uploads/missiondecharge/' . $photoName;
-                    $mission->etat = 4;
+                    //$mission->etat = 4; we won't need this after we removed the condition on etat column
                 }
                 $mission->save();
                 return response()->json([
