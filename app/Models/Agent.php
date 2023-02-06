@@ -34,6 +34,7 @@ class Agent extends Authenticatable implements JWTSubject
         'cp',
         'is_commis',
         'password',
+        'avatar',
     ];
 
     /**
