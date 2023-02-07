@@ -180,6 +180,7 @@ Route::group([
     Route::get('profile', 'ProfileController@myProfile');
     Route::get('myprofile/{id}', 'ProfileController@showThisProfile');
     Route::put('updateProfile/{id}', 'ProfileController@updateMyProfile');
+    Route::post('change-avatar', 'ProfileController@changeAvatar');
 });
 
 
