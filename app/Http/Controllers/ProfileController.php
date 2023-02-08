@@ -13,14 +13,16 @@ class ProfileController extends Controller
     //
     public function __construct()
     {
+        // $this->user = auth()->guard('api')->user();
+        // $this->agent = auth()->guard('agent-api');
         if (auth()->guard('api')->check()) {
             $this->middleware("auth:api");
-        }
-        if (auth()->guard('agent-api')->check()) {
+            $this->user = auth()->guard('api')->user();
+        } elseif (auth()->guard('agent-api')->check()) {
             $this->middleware("auth:agent-api");
-        }
-        if (auth()->guard('client')->check()) {
-            $this->middleware("auth:client");
+            $this->user = auth()->guard('agent-api')->user();
+        } elseif (auth()->guard('client')->check()) {
+            $this->user = auth()->guard('client')->user();
         }
     }
 
@@ -190,6 +192,7 @@ class ProfileController extends Controller
                     'ville' => $request->ville,
                     'pays' => $request->pays,
                     'cp' => $request->cp,
+                    'gsm' => $request->gsm,
                 ]);
                 $profile = Client::where('id', $id)->get();
                 return response()->json([
@@ -199,5 +202,49 @@ class ProfileController extends Controller
                 ]);
             }
         }
+    }
+
+    public function changeAvatar(Request $request)
+    {
+        $validatedAvatar = Validator::make($request->all(), [
+            'avatar' => 'image',
+        ]);
+
+        if ($validatedAvatar->failed()) {
+            return response()->json([
+                'status' => 'failed',
+                'errors' => $validatedAvatar->errors()
+            ], 422);
+        }
+        $ref_avatar = $this->user->nom . '_' . $this->user->prenom;
+        if (auth()->guard('api')->check()) {
+            if ($request->hasFile('avatar')) {
+                $pic = $request->file('avatar');
+                $picName = $ref_avatar . '_' . $this->user->societe . '.' . $pic->getClientOriginalExtension();
+                $pic->move('profiles/users/', $picName);
+                $this->user->avatar = 'profiles/users/' . $picName;
+            }
+        }
+        if (auth()->guard('agent-api')->check()) {
+            if ($request->hasFile('avatar')) {
+                $pic = $request->file('avatar');
+                $picName = $this->user->societe . '_' . $ref_avatar . '.' . $pic->getClientOriginalExtension();
+                $pic->move('profiles/agents/', $picName);
+                $this->user->avatar = 'profiles/agents/' . $picName;
+            }
+        }
+        if (auth()->guard('client')->check()) {
+            if ($request->hasFile('avatar')) {
+                $pic = $request->file('avatar');
+                $picName = $this->user->societe . '_' . $this->user->code . '.' . $pic->getClientOriginalExtension();
+                $pic->move('profiles/clients/', $picName);
+                $this->user->avatar = 'profiles/clients/' . $picName;
+            }
+        }
+        $this->user->save();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile avatar updated successfully',
+        ]);
     }
 }
