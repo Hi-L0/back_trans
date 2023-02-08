@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class FactureController extends Controller
@@ -19,11 +20,13 @@ class FactureController extends Controller
     }
     public function getFactures()
     {
-        $factures = Facture::where('owner', auth()->guard('api')->id())->get();
-        return response()->json([
-            'status' => 'success',
-            'factures' => $factures,
-        ]);
+        if (auth()->guard('api')->check()) {
+            $factures = Facture::where('owner', auth()->guard('api')->id())->get();
+            return response()->json([
+                'status' => 'success',
+                'factures' => $factures,
+            ]);
+        }
     }
     /**
      * Store a newly created resource in storage.
@@ -429,19 +432,20 @@ class FactureController extends Controller
             if (auth()->guard('api')->user()->id == $facture->owner && $facture->isClosed == false) {
                 $facture = $mission->facture;
                 $client = $mission->client;  //so that the attribut 'client' show up in the json call
-                $myFacture = 'factures/' . $facture->code_facture . '.pdf';
+                $myFacture = 'app/factures/' . $facture->code_facture . '.pdf';
+                $invoicePath = storage_path($myFacture); //so that it can identify the path for us to use it below (we want to put it in storage directory)
                 $data = [
                     'mission' => $mission,
                     // 'date' => date('d-m-Y'),
                 ];
                 //PDF::loadHTML($content)->save($myFacture);
-                PDF::loadView('content', $data)->save($myFacture);
+                PDF::loadView('content', $data)->save($invoicePath);
                 $model = Facture::find($facture->id);
                 $model->facture = $myFacture;
                 $model->save();
                 $mission->invoice = true;
                 $mission->save();
-                return response()->download($myFacture);
+                return response()->download($invoicePath);
             } else {
                 return response()->json([
                     'message' => 'Unauthorized',
@@ -459,8 +463,8 @@ class FactureController extends Controller
             //$mission = Mission::where('id', $facture->mission_id)->first();
             $mission = Mission::find($facture->mission_id);
             //this will delete any invoice file that has this invoice info
-            if (File::exists(public_path('factures/' . $facture->code_facture . '.pdf'))) {
-                File::delete(public_path('factures/' . $facture->code_facture . '.pdf'));
+            if (File::exists(storage_path('app/factures/' . $facture->code_facture . '.pdf'))) {
+                File::delete(storage_path('app/factures/' . $facture->code_facture . '.pdf'));
             }
             $facture->delete();
             $mission->invoice = false;
