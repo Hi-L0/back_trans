@@ -689,6 +689,7 @@ class MissionController extends Controller
     public function missionTrashed()
     {
         if (auth()->guard('api')->check()) {
+            $count = 0;
             $user = auth()->guard('api')->user(); //Auth::user
             // $missions = Mission::onlyTrashed()->where('user_id', $user->id)->get();  //it shows only the post of the user
             //or we can write with(.....)
@@ -696,9 +697,10 @@ class MissionController extends Controller
             //$missions = Mission::onlyTrashed()->where('user_id', Auth::id())->get();  //it shows only the post of the user
             //or we can write with(.....)
             $missions = $user->trashedMissions;
-
+            $count = count($missions);
             return response()->json([
                 'status' => 'success',
+                'missionsCount' => $count,
                 'missions_deleted' => $missions,
             ]);
         }
