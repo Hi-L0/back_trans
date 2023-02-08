@@ -171,6 +171,14 @@ Route::group([
     Route::get('recouvrement', 'FactureController@getRecouvrementFac');
 });
 
+Route::group([
+    'middleware' => 'api',
+    'namespace' => 'App\Http\Controllers', //like the one above
+
+], function ($router) {
+    Route::get('view-facture/{facture}', 'RecordsController@view');
+});
+
 //Profile Routes
 Route::group([
     'middleware' => 'api',
