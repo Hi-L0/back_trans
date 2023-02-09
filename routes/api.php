@@ -186,8 +186,8 @@ Route::group([
 
 ], function ($router) {
     Route::get('profile', 'ProfileController@myProfile');
-    Route::get('myprofile/{id}', 'ProfileController@showThisProfile');
-    Route::put('updateProfile/{id}', 'ProfileController@updateMyProfile');
+    Route::get('myprofile', 'ProfileController@showThisProfile');
+    Route::post('updateProfile', 'ProfileController@updateMyProfile');
     Route::post('change-avatar', 'ProfileController@changeAvatar');
 });
 
