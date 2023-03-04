@@ -438,9 +438,12 @@ class MissionController extends Controller
         $agent = $mission->agent;
         $fullname = $mission->agent->nom . ' ' . $mission->agent->prenom; //agent's full name
         $commis = $mission->isCommis->nom . ' ' . $mission->isCommis->prenom; //commis' full name
-        $clientName = $mission->client->nom;
-        $clientPren = $mission->client->prenom;
-
+        //we either change this from separate client proprieteies to a client object
+        $clientName = $mission->client->nom . ' ' . $mission->client->prenom;
+        // $clientPren = $mission->client->prenom;
+        $clientCompany = $mission->client->societe;
+        //client as object
+        //$clientInfo = $mission->client; //all we need is to implement this in api calls
         if (auth()->guard('agent-api')->check()) {
             $role = $this->user->roles()->select('code')->get();
             for ($i = 0; $i < sizeof($role); $i++) {
@@ -452,7 +455,8 @@ class MissionController extends Controller
                             'transporteur' => $fullname,
                             'role' => $role,
                             'commis' => $commis,
-                            'client' => $clientName . ' ' . $clientPren,
+                            'client' => $clientName,
+                            'clientCompany' => $clientCompany,
                             'mission' => $mission,
                             'step' => $mission->etat,
                         ]);
@@ -470,7 +474,8 @@ class MissionController extends Controller
                             'transporteur' => $fullname,
                             'role' => $role,
                             'commis' => $commis,
-                            'client' => $clientName . ' ' . $clientPren,
+                            'client' => $clientName,
+                            'clientCompany' => $clientCompany,
                             'mission' => $mission,
 
                         ]);
@@ -500,7 +505,8 @@ class MissionController extends Controller
                     'transporteur' => $fullname,
                     'role' => $role,
                     'commis' => $commis,
-                    'client' => $clientName . ' ' . $clientPren,
+                    'client' => $clientName,
+                    'clientCompany' => $clientCompany,
                     'mission' => $mission,
                     'step' => $mission->etat,
                 ]);
@@ -520,6 +526,7 @@ class MissionController extends Controller
                     'transporteur' => $fullname,
                     'commis' => $commis,
                     'client' => $client->nom . ' ' . $client->prenom,
+                    'clientCompany' => $client->societe,
                     'mission' => $mission,
                     'viewSteps' => 'yes',
 
