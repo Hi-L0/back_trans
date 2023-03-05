@@ -338,84 +338,93 @@ class MissionController extends Controller
                 // 'step' => "initialisation", //as a value and not in the data base
             ]);
         } elseif (auth()->guard('agent-api')->check()) { //if transporteur is connected
-            $user = $this->user;
-            $val = Validator::make($request->all(), [
-                'client_id' => 'required|integer',
-                'matricule' => 'required|string',
-                'nb_colis' => 'required',
-                'poids' => 'required',
-                'num_cmra' => 'required',
-                'num_declaration_transit' => 'required',
-                'destinataire' => 'required|string',
-                'commis' => 'required',
-                'photo_chargement' => 'image',
-                'bon_scaner' => 'string',
-                'num_mrn' => 'string',
-                'bl_maritime' => 'string',
-                'matricule_european' => 'string',
+            $role = $this->user->roles()->select('code')->get();
+            //condition for only agents that are transporters can create new missions
+            if ($role[0]->code == 'tr') {
+                $user = $this->user;
+                $val = Validator::make($request->all(), [
+                    'client_id' => 'required|integer',
+                    'matricule' => 'required|string',
+                    'nb_colis' => 'required',
+                    'poids' => 'required',
+                    'num_cmra' => 'required',
+                    'num_declaration_transit' => 'required',
+                    'destinataire' => 'required|string',
+                    'commis' => 'required',
+                    'photo_chargement' => 'image',
+                    'bon_scaner' => 'string',
+                    'num_mrn' => 'string',
+                    'bl_maritime' => 'string',
+                    'matricule_european' => 'string',
 
-            ]);
+                ]);
 
-            $ref_photo = $request->matricule;
-            if ($request->hasFile('photo_chargement')) {
-                $pic = $request->file('photo_chargement');
-                $photoName = $ref_photo . '_' . date('y_m_d') . '.' . $pic->getClientOriginalExtension();
-                $pic->move('uploads/missioncharge/', $photoName);
-            }
-            // if ($request->has('photo_chargement')) {
-            //     $image = $request->file('photo_chargement');
-            //     //foreach ($request->file('photo_chargement') as $image)
-            //     $filename = time() . $ref_photo . '.' . $image->getClientOriginalExtension();
-            //     $image->move('uploads/', $filename);
-            //     $mission = Mission::create([
-            //         'user_id' => $user->id,
-            //         'client_id' => $request->client_id,
-            //         'matricule' => $request->matricule,
-            //         'nb_colis' => $request->nb_colis,
-            //         'poids' => $request->poids,
-            //         'num_cmra' => $request->num_cmra,
-            //         'num_declaration_transit' => $request->num_declaration_transit,
-            //         'destinataire' => $request->destination,
-            //         'commis' => $request->commis,
-            //         'photo_chargement' => 'uploads/' . $filename,
+                $ref_photo = $request->matricule;
+                if ($request->hasFile('photo_chargement')) {
+                    $pic = $request->file('photo_chargement');
+                    $photoName = $ref_photo . '_' . date('y_m_d') . '.' . $pic->getClientOriginalExtension();
+                    $pic->move('uploads/missioncharge/', $photoName);
+                }
+                // if ($request->has('photo_chargement')) {
+                //     $image = $request->file('photo_chargement');
+                //     //foreach ($request->file('photo_chargement') as $image)
+                //     $filename = time() . $ref_photo . '.' . $image->getClientOriginalExtension();
+                //     $image->move('uploads/', $filename);
+                //     $mission = Mission::create([
+                //         'user_id' => $user->id,
+                //         'client_id' => $request->client_id,
+                //         'matricule' => $request->matricule,
+                //         'nb_colis' => $request->nb_colis,
+                //         'poids' => $request->poids,
+                //         'num_cmra' => $request->num_cmra,
+                //         'num_declaration_transit' => $request->num_declaration_transit,
+                //         'destinataire' => $request->destination,
+                //         'commis' => $request->commis,
+                //         'photo_chargement' => 'uploads/' . $filename,
 
-            //     ]);
-            // }
+                //     ]);
+                // }
 
-            if ($val->failed()) {
+                if ($val->failed()) {
+                    return response()->json([
+                        'status' => false,
+                        'errors' => $val->errors()
+                    ], 400);
+                }
+                // if (auth()->guard('api')->check()) {
+                //     $user = auth()->guard('api')->user();
+                // } elseif (auth()->guard('agent-api')->check()) {
+                //     $user = auth()->guard('agent-api')->user();
+                // }
+
+                //$user = User::find(1); //look above
+                $mission = Mission::create([
+                    'user_id' => $user->id,
+                    'client_id' => $request->client_id,
+                    'matricule' => $request->matricule,
+                    'nb_colis' => $request->nb_colis,
+                    'poids' => $request->poids,
+                    'num_cmra' => $request->num_cmra,
+                    'num_declaration_transit' => $request->num_declaration_transit,
+                    'destinataire' => $request->destinataire,
+                    'commis' => $request->commis,
+                    'photo_chargement' => 'uploads/missioncharge/' . $photoName,
+                ]);
+                //$mission->save();
+
+
                 return response()->json([
-                    'status' => false,
-                    'errors' => $val->errors()
-                ], 400);
+                    'status' => true,
+                    'message' => 'mission created!',
+                    'mission' => $mission,
+                    // 'step' => "initialisation", //as a value and not in the data base
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'danger',
+                    'message' => 'this user cannot do this action ',
+                ]);
             }
-            // if (auth()->guard('api')->check()) {
-            //     $user = auth()->guard('api')->user();
-            // } elseif (auth()->guard('agent-api')->check()) {
-            //     $user = auth()->guard('agent-api')->user();
-            // }
-
-            //$user = User::find(1); //look above
-            $mission = Mission::create([
-                'user_id' => $user->id,
-                'client_id' => $request->client_id,
-                'matricule' => $request->matricule,
-                'nb_colis' => $request->nb_colis,
-                'poids' => $request->poids,
-                'num_cmra' => $request->num_cmra,
-                'num_declaration_transit' => $request->num_declaration_transit,
-                'destinataire' => $request->destinataire,
-                'commis' => $request->commis,
-                'photo_chargement' => 'uploads/missioncharge/' . $photoName,
-            ]);
-            //$mission->save();
-
-
-            return response()->json([
-                'status' => true,
-                'message' => 'mission created!',
-                'mission' => $mission,
-                // 'step' => "initialisation", //as a value and not in the data base
-            ]);
         }
     }
 
