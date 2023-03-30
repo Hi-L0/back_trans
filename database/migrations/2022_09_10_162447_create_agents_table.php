@@ -26,7 +26,7 @@ class CreateAgentsTable extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            $table->foreign('supervisor')->references('id')->on('users')->onDellete('cascade');
+            $table->foreign('supervisor')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
