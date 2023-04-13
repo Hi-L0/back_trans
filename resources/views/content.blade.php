@@ -137,7 +137,9 @@
         </p>
 
         <div class="distinataire">
-
+            <div>
+                {{ strtoupper($mission->client->societe) }}
+            </div>
             {{ $mission->client->adresse }}
             <div class="ville_Client">
                 {{ $mission->client->cp }} {{ $mission->client->ville }}
