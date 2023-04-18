@@ -21,10 +21,12 @@
         }
 
         .distinataire {
-            margin-right: 100px;
+            margin-top: -10px;
+            margin-right: 120px;
             float: right;
+            font-size: 15px;
             /* text-align: right; */
-            max-width: 200px;
+            max-width: 300px;
             max-height: 200px;
         }
 
