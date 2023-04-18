@@ -7,7 +7,8 @@
     <link rel="shortcut icon" href="%PUBLIC_URL%/rpslogo.jpg" />
     <style>
         body {
-            margin-left: -35px;
+            margin-left: -32px;
+            font-size: 15px;
         }
 
         .header {
@@ -22,23 +23,23 @@
 
         .distinataire {
             margin-top: -10px;
-            margin-right: 120px;
+            margin-right: 100px;
             float: right;
             font-size: 15px;
             word-wrap: break-word;
             /* text-align: right; */
             max-width: 300px;
-            max-height: 200px;
+            max-height: calc(100vh - 200px);
         }
 
         .ville_Client {
-            padding-top: 15px;
+            padding-top: 10px;
         }
 
         .info_F {
             display: flex;
 
-            margin-top: 50px;
+            margin-top: 100px;
 
         }
 
