@@ -25,6 +25,7 @@
             margin-right: 120px;
             float: right;
             font-size: 15px;
+            word-wrap: break-word;
             /* text-align: right; */
             max-width: 300px;
             max-height: 200px;
